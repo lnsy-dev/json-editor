@@ -85,7 +85,13 @@ class JSONEditor extends DataroomElement {
       }
       return "array of strings";
     }
-    if (typeof value === "object") return "json";
+    if (typeof value === "object") {
+      const keys = Object.keys(value);
+      if (["latitude", "longitude", "altitude"].every((k) => keys.includes(k))) {
+        return "location";
+      }
+      return "json";
+    }
     if (typeof value === "number") {
       // Check if it might be money (has 2 decimal places)
       if (value.toString().match(/^\d+\.\d{2}$/)) {
@@ -150,6 +156,31 @@ class JSONEditor extends DataroomElement {
         return Array.isArray(value)
           ? value.filter((s) => !s.includes(" "))
           : [];
+      case "location":
+        if (typeof value === "string") {
+          const trimmed = value.trim();
+          if (trimmed === "") {
+            return { latitude: "0.00", longitude: "0.00", altitude: "0.00" };
+          }
+          try {
+            const obj = JSON.parse(value);
+            return {
+              latitude: String(obj?.latitude ?? "0.00"),
+              longitude: String(obj?.longitude ?? "0.00"),
+              altitude: String(obj?.altitude ?? "0.00"),
+            };
+          } catch {
+            return { latitude: "0.00", longitude: "0.00", altitude: "0.00" };
+          }
+        }
+        if (typeof value === "object" && value !== null) {
+          return {
+            latitude: String(value.latitude ?? "0.00"),
+            longitude: String(value.longitude ?? "0.00"),
+            altitude: String(value.altitude ?? "0.00"),
+          };
+        }
+        return { latitude: "0.00", longitude: "0.00", altitude: "0.00" };
       case "json":
         if (typeof value === "string") {
           try {
@@ -197,6 +228,17 @@ class JSONEditor extends DataroomElement {
         } catch {
           return false;
         }
+      case "location":
+        try {
+          const obj = typeof value === "string" ? JSON.parse(value) : value;
+          if (!obj || typeof obj !== "object") return false;
+          const hasKeys = ["latitude", "longitude", "altitude"].every((k) => Object.prototype.hasOwnProperty.call(obj, k));
+          if (!hasKeys) return false;
+          const vals = [obj.latitude, obj.longitude, obj.altitude];
+          return vals.every((v) => v === "" || v === null || v === undefined || !isNaN(parseFloat(v)));
+        } catch {
+          return false;
+        }
       case "json":
         try {
           if (typeof value === "string") {
@@ -233,6 +275,7 @@ class JSONEditor extends DataroomElement {
       case "array of strings":
       case "tag list":
         return Array.isArray(value) ? value.join(", ") : value;
+      case "location":
       case "json":
         return typeof value === "object"
           ? JSON.stringify(value, null, 2)
@@ -327,6 +370,7 @@ class JSONEditor extends DataroomElement {
       { value: "array of strings", icon: "📚" },
       { value: "tag list", icon: "🏷️" },
       { value: "url", icon: "🔗" },
+      { value: "location", icon: "🌍" },
       { value: "json", icon: "{ }" },
       { value: "money", icon: "💵" },
       { value: "boolean", icon: "🔘" },
@@ -404,6 +448,17 @@ class JSONEditor extends DataroomElement {
         this.rows[index].value = e.target.checked;
         this.handleDataChange();
       });
+    } else if (row.type === "location") {
+      valueInput = this.create(
+        "textarea",
+        {
+          class: "json-editor-value json-editor-textarea",
+          placeholder: '{"latitude":"0.00","longitude":"0.00","altitude":"0.00"}',
+          rows: 3,
+        },
+        rowElement,
+      );
+      valueInput.value = this.formatValueForInput(row.value, row.type);
     } else if (row.type === "json") {
       valueInput = this.create(
         "textarea",
