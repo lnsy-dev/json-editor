@@ -454,7 +454,7 @@ class JSONEditor extends DataroomElement {
         {
           class: "json-editor-value json-editor-textarea",
           placeholder: '{"latitude":"0.00","longitude":"0.00","altitude":"0.00"}',
-          rows: 3,
+          rows: 1,
         },
         rowElement,
       );
@@ -465,7 +465,7 @@ class JSONEditor extends DataroomElement {
         {
           class: "json-editor-value json-editor-textarea",
           placeholder: "JSON value",
-          rows: 3,
+          rows: 1,
         },
         rowElement,
       );
