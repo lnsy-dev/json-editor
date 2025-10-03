@@ -1,6 +1,12 @@
-# Pochade-JS
+
+
+# JSON Editor
 
 A vanilla JS, CSS and HTML boilerplate with Web Workers and Custom HTML Elements as first class citizens. 
+
+
+
+
 
 ## Installation
 
@@ -63,3 +69,25 @@ PORT=8080
 ```
 
 If this variable is not set, the port will default to `3000`.
+
+
+## Icons
+
+Globe by Komardews from <a href="https://thenounproject.com/browse/icons/term/globe/" target="_blank" title="Globe Icons">Noun Project</a> (CC BY 3.0)
+
+text by Gregor Cresnar from <a href="https://thenounproject.com/browse/icons/term/text/" target="_blank" title="text Icons">Noun Project</a> (CC BY 3.0)
+
+Calendar by Feri Saputra from <a href="https://thenounproject.com/browse/icons/term/calendar/" target="_blank" title="Calendar Icons">Noun Project</a> (CC BY 3.0)
+
+Tag by Yo! Baba from <a href="https://thenounproject.com/browse/icons/term/tag/" target="_blank" title="Tag Icons">Noun Project</a> (CC BY 3.0)
+
+array by YOSHA from <a href="https://thenounproject.com/browse/icons/term/array/" target="_blank" title="array Icons">Noun Project</a> (CC BY 3.0)
+
+link by Hassan ali from <a href="https://thenounproject.com/browse/icons/term/link/" target="_blank" title="link Icons">Noun Project</a> (CC BY 3.0)
+
+json by Lourenchyus from <a href="https://thenounproject.com/browse/icons/term/json/" target="_blank" title="json Icons">Noun Project</a> (CC BY 3.0)
+
+
+Money by fahmionline from <a href="https://thenounproject.com/browse/icons/term/money/" target="_blank" title="Money Icons">Noun Project</a> (CC BY 3.0)
+
+checkbox on by Jan Klever from <a href="https://thenounproject.com/browse/icons/term/checkbox-on/" target="_blank" title="checkbox on Icons">Noun Project</a> (CC BY 3.0)
