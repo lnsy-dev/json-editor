@@ -9,6 +9,7 @@
 */
 
 import DataroomElement from "dataroom-js";
+import "./json-entry-dropdown.js";
 
 class JSONEditor extends DataroomElement {
   /**
@@ -105,6 +106,10 @@ class JSONEditor extends DataroomElement {
         new URL(value);
         return "url";
       } catch {}
+      // Check if it's a datetime (has time component)
+      if (!isNaN(Date.parse(value)) && (value.includes("T") || value.match(/\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}/))) {
+        return "datetime";
+      }
       // Check if it's a date
       if (!isNaN(Date.parse(value)) && value.match(/\d{4}-\d{2}-\d{2}/)) {
         return "date";
@@ -195,6 +200,11 @@ class JSONEditor extends DataroomElement {
           return value.toISOString().split("T")[0];
         }
         return value || "";
+      case "datetime":
+        if (value instanceof Date) {
+          return value.toISOString();
+        }
+        return value || "";
       case "url":
         return value || "";
       case "string":
@@ -221,6 +231,9 @@ class JSONEditor extends DataroomElement {
       case "date":
         const date = new Date(value);
         return date instanceof Date && !isNaN(date);
+      case "datetime":
+        const dt = new Date(value);
+        return dt instanceof Date && !isNaN(dt);
       case "url":
         try {
           new URL(value);
@@ -285,6 +298,22 @@ class JSONEditor extends DataroomElement {
       case "date":
         if (value instanceof Date) {
           return value.toISOString().split("T")[0];
+        }
+        return value;
+      case "datetime":
+        // Convert to input[type=datetime-local] format (YYYY-MM-DDTHH:MM) in local time when possible
+        const formatLocal = (d) => {
+          const pad = (n) => String(n).padStart(2, "0");
+          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        };
+        if (value instanceof Date) {
+          return formatLocal(value);
+        }
+        if (typeof value === "string") {
+          // If already in acceptable format, return as-is
+          if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return value;
+          const d = new Date(value);
+          if (!isNaN(d)) return formatLocal(d);
         }
         return value;
       default:
@@ -354,57 +383,30 @@ class JSONEditor extends DataroomElement {
       rowElement,
     );
 
-        // Type select
-    const typeSelect = this.create(
-      "select",
+    // Type dropdown with SVG icons
+    const typeDropdown = this.create(
+      "json-entry-dropdown",
       {
-        class: "json-editor-type",
+        value: row.type,
       },
       rowElement,
     );
 
-    const types = [
-      { value: "string", icon: "📝" },
-      { value: "number", icon: "🔢" },
-      { value: "date", icon: "📅" },
-      { value: "array of strings", icon: "📚" },
-      { value: "tag list", icon: "🏷️" },
-      { value: "url", icon: "🔗" },
-      { value: "location", icon: "🌍" },
-      { value: "json", icon: "{ }" },
-      { value: "money", icon: "💵" },
-      { value: "boolean", icon: "🔘" },
-    ];
-
-    types.forEach((type) => {
-      const option = this.create(
-        "option",
-        {
-          value: type.value,
-          content: type.icon,
-          title: type.value,
-        },
-        typeSelect,
-      );
-      if (type.value === row.type) {
-        option.selected = true;
-      }
-    });
-
-    typeSelect.addEventListener("change", (e) => {
+    typeDropdown.addEventListener("TYPE-CHANGED", (e) => {
+      const newType = e.detail.value;
       const oldType = this.rows[index].type;
-      this.rows[index].type = e.target.value;
+      this.rows[index].type = newType;
 
       // Try to convert the value to the new type
       const currentValue = this.rows[index].value;
 
       // If current value is invalid for new type, keep it as-is for user to fix
-      if (!this.validateValue(currentValue, e.target.value)) {
+      if (!this.validateValue(currentValue, newType)) {
         // Keep the raw value, don't parse it
         this.rows[index].value = currentValue;
       } else {
         // Re-parse the value with new type
-        this.rows[index].value = this.parseValue(currentValue, e.target.value);
+        this.rows[index].value = this.parseValue(currentValue, newType);
       }
 
       this.handleDataChange();
@@ -470,6 +472,16 @@ class JSONEditor extends DataroomElement {
         rowElement,
       );
       valueInput.value = this.formatValueForInput(row.value, row.type);
+    } else if (row.type === "datetime") {
+      valueInput = this.create(
+        "input",
+        {
+          type: "datetime-local",
+          class: "json-editor-value",
+          value: this.formatValueForInput(row.value, row.type) || "",
+        },
+        rowElement,
+      );
     } else if (row.type === "date") {
       valueInput = this.create(
         "input",

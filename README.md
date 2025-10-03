@@ -91,3 +91,7 @@ json by Lourenchyus from <a href="https://thenounproject.com/browse/icons/term/j
 Money by fahmionline from <a href="https://thenounproject.com/browse/icons/term/money/" target="_blank" title="Money Icons">Noun Project</a> (CC BY 3.0)
 
 checkbox on by Jan Klever from <a href="https://thenounproject.com/browse/icons/term/checkbox-on/" target="_blank" title="checkbox on Icons">Noun Project</a> (CC BY 3.0)
+
+Number by Mustofa Bayu from <a href="https://thenounproject.com/browse/icons/term/number/" target="_blank" title="Number Icons">Noun Project</a> (CC BY 3.0)
+
+Time by Nursila from <a href="https://thenounproject.com/browse/icons/term/time/" target="_blank" title="Time Icons">Noun Project</a> (CC BY 3.0)
