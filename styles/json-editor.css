@@ -1,0 +1,165 @@
+json-editor {
+    margin-top: calc(var(--header-height) * 1);
+}
+
+.json-editor-container {
+    padding: 1rem;
+    min-width: 100%;
+    text-align: right;
+
+}
+
+.json-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+}
+
+.json-editor-header h3 {
+    margin: 0;
+    color: var(--fg-color);
+}
+
+.json-editor-add-btn {
+    aspect-ratio: 1;    
+    margin-left: auto;
+    background: var(--confirm-color);
+    color: var(--bg-color);
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: 1.5em;
+    margin-top: 1em;
+}
+
+.json-editor-add-btn:hover {
+    opacity: 0.9;
+}
+
+.json-editor-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.json-editor-row {
+    display: grid;
+    grid-template-columns: 20px 60px 1fr 2fr 40px;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.json-editor-key,
+.json-editor-type,
+.json-editor-value {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    color: var(--fg-color);
+}
+
+.json-editor-type {
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
+    text-align: center;
+    width: 60px;
+    min-width: 60px;
+}
+
+.json-editor-type option {
+    padding: 0.25rem;
+    text-align: center;
+}
+
+.json-editor-key:focus,
+.json-editor-type:focus,
+.json-editor-value:focus {
+    outline: 2px solid var(--quaternary-fg-color);
+    outline-offset: 1px;
+}
+
+.json-editor-invalid {
+    border-color: var(--error-color) !important;
+    background-color: rgba(255, 0, 0, 0.05);
+}
+
+.json-editor-invalid:focus {
+    outline-color: var(--error-color);
+}
+
+.json-editor-validation-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.json-editor-validation-indicator.valid {
+    color: var(--confirm-color);
+}
+
+.json-editor-validation-indicator.invalid {
+    color: var(--error-color);
+}
+
+.json-editor-textarea {
+    resize: vertical;
+    min-height: 60px;
+    font-family: monospace;
+}
+
+.json-editor-delete-btn {
+    aspect-ratio: 1;
+    background: var(--error-color);
+    color: var(--bg-color);
+    border: none;
+    cursor: pointer;
+    display: block;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    width: 1.5em;
+}
+
+.json-editor-delete-btn:hover {
+    opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+    .json-editor-row {
+        grid-template-columns: 20px 1fr;
+        grid-template-areas:
+            "indicator key"
+            ". type"
+            ". value"
+            ". delete";
+    }
+
+    .json-editor-validation-indicator {
+        grid-area: indicator;
+    }
+
+    .json-editor-key {
+        grid-area: key;
+    }
+
+    .json-editor-type {
+        grid-area: type;
+    }
+
+    .json-editor-value {
+        grid-area: value;
+    }
+
+    .json-editor-delete-btn {
+        grid-area: delete;
+        width: 100%;
+    }
+}
