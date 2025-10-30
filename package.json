@@ -1,24 +1,21 @@
 {
-  "name": "pochade-js",
-  "version": "0.5.0",
-  "description": "A context engineering boilerplate for generating custom HTML Elements",
-  "main": "dist/main.js",
+  "name": "@lnsy/json-editor",
+  "version": "0.5.2",
+  "description": "JSON and YAML Editor component",
+  "main": "dist/main.min.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lnsy-dev/pochade-js.git"
+    "url": "git+https://github.com/DATAROOM-NETWORK/json-editor.git"
   },
   "keywords": [
-    "Context",
-    "Engineering",
-    "Vanilla",
-    "Js"
+    "JSON"
   ],
   "author": "LNSY",
   "license": "Unlicense",
   "bugs": {
-    "url": "https://github.com/lnsy-dev/pochade-js/issues"
+    "url": "https://github.com/DATAROOM-NETWORK/json-editor"
   },
-  "homepage": "https://github.com/lnsy-dev/pochade-js#readme",
+  "homepage": "https://github.com/DATAROOM-NETWORK/json-editor#readme",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "rspack serve",
