@@ -2,7 +2,7 @@
 
 # JSON Editor
 
-A vanilla JS, CSS and HTML boilerplate with Web Workers and Custom HTML Elements as first class citizens. 
+A visual JSON/YAML editor built with vanilla JavaScript. Edit structured data using an intuitive row-based interface with type selection, validation, and bi-directional YAML/JSON conversion.
 
 
 
@@ -70,6 +70,94 @@ PORT=8080
 
 If this variable is not set, the port will default to `3000`.
 
+## Usage
+
+### Basic Usage
+
+Add the `<json-editor>` custom element to your HTML:
+
+```html
+<json-editor></json-editor>
+```
+
+Or load JSON from a URL:
+
+```html
+<json-editor src="path/to/data.json"></json-editor>
+```
+
+### Visual Editor Features
+
+The JSON editor provides a row-based interface where each row represents a key-value pair:
+
+- **Add rows**: Click the `+` button to add new key-value pairs
+- **Type selection**: Choose from multiple data types (string, number, boolean, date, datetime, url, array, json, etc.)
+- **Validation**: Real-time validation with visual indicators (✓ for valid, ✗ for invalid)
+- **Delete rows**: Click the `×` button to remove a row
+
+### Supported Data Types
+
+- **string** - Text values
+- **number** - Numeric values
+- **boolean** - True/false checkbox
+- **money** - Decimal values with 2 decimal places
+- **date** - Date picker (YYYY-MM-DD)
+- **datetime** - Date and time picker
+- **url** - URL with validation
+- **array of strings** - Comma-separated list
+- **tag list** - Comma-separated tags (single words only)
+- **location** - JSON object with latitude, longitude, altitude
+- **json** - Nested JSON objects
+
+### YAML/JSON Conversion API
+
+The editor supports programmatic conversion between YAML and JSON formats:
+
+```javascript
+const editor = document.querySelector('json-editor');
+
+// Load data from JSON string
+const jsonString = '{"name": "John", "age": 30}';
+editor.setJSON(jsonString);
+
+// Load data from YAML string
+const yamlString = 'name: Jane\nage: 28';
+editor.setYaml(yamlString);
+
+// Export current data as JSON
+const json = editor.getJSON();
+console.log(json);
+
+// Export current data as YAML
+const yaml = editor.getYaml();
+console.log(yaml);
+```
+
+### Events
+
+The editor emits a `JSON-UPDATED` event whenever data changes:
+
+```javascript
+const editor = document.querySelector('json-editor');
+
+editor.addEventListener('JSON-UPDATED', (event) => {
+  console.log('Data updated:', event.detail.json);
+});
+```
+
+### Example Application
+
+See `index.html` for a complete example with test buttons that demonstrate:
+- Loading sample JSON data
+- Loading sample YAML data
+- Converting editor content to JSON
+- Converting editor content to YAML
+
+## Dependencies
+
+- **dataroom-js** - Custom element framework
+- **js-yaml** - YAML parsing and conversion
+- **@rspack/cli** - Build tool
 
 ## Icons
 
