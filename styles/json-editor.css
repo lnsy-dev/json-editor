@@ -1,164 +1,229 @@
 json-editor {
-    margin-top: calc(var(--header-height) * 1);
+  margin-top: calc(var(--header-height) * 1);
 }
 
 .json-editor-container {
-    padding: 1rem;
-    min-width: 100%;
-    text-align: right;
+  padding: 1rem;
+  min-width: 100%;
+  text-align: right;
 
 }
 
 .json-editor-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
 }
 
 .json-editor-header h3 {
-    margin: 0;
-    color: var(--fg-color);
+  margin: 0;
+  color: var(--foreground-color);
 }
 
 .json-editor-add-btn {
-    aspect-ratio: 1;    
-    margin-left: auto;
-    background: var(--confirm-color);
-    color: var(--bg-color);
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    margin-right: 1.5em;
-    margin-top: 1em;
+  aspect-ratio: 1;
+  margin-left: auto;
+  background: var(--confirmation-color);
+  color: var(--background-color);
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  margin-right: 1.5em;
+  margin-top: 1em;
 }
 
 .json-editor-add-btn:hover {
-    opacity: 0.9;
+  opacity: 0.9;
 }
 
 .json-editor-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .json-editor-row {
-    display: grid;
-    grid-template-columns: 20px 60px 1fr 2fr 40px;
-    gap: 0.5rem;
-    align-items: center;
+  display: grid;
+  grid-template-columns: 20px 60px 1fr 2fr 40px;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .json-editor-key,
 .json-editor-type,
 .json-editor-value {
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    background: var(--bg-color);
-    color: var(--fg-color);
+  padding: 0.5rem;
+  border: 1px solid var(--quaternary-color);
+  background: var(--background-color);
+  color: var(--foreground-color);
 }
 
 .json-editor-type {
-    font-family:
-        system-ui,
-        -apple-system,
-        sans-serif;
-    text-align: center;
-    width: 60px;
-    min-width: 60px;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  text-align: center;
+  width: 60px;
+  min-width: 60px;
 }
 
 .json-editor-type option {
-    padding: 0.25rem;
-    text-align: center;
+  padding: 0.25rem;
+  text-align: center;
 }
 
 .json-editor-key:focus,
 .json-editor-type:focus,
 .json-editor-value:focus {
-    outline: 2px solid var(--quaternary-fg-color);
-    outline-offset: 1px;
+  outline: 2px solid var(--trinary-color);
+  outline-offset: 1px;
 }
 
 .json-editor-invalid {
-    border-color: var(--error-color) !important;
-    background-color: rgba(255, 0, 0, 0.05);
+  border-color: var(--error-color) !important;
+  background-color: rgba(255, 0, 0, 0.05);
 }
 
 .json-editor-invalid:focus {
-    outline-color: var(--error-color);
+  outline-color: var(--error-color);
 }
 
 .json-editor-validation-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
 }
 
 .json-editor-validation-indicator.valid {
-    color: var(--confirm-color);
+  color: var(--confirmation-color);
 }
 
 .json-editor-validation-indicator.invalid {
-    color: var(--error-color);
+  color: var(--error-color);
 }
 
 .json-editor-textarea {
-    resize: vertical;
-    font-family: monospace;
+  resize: vertical;
+  font-family: monospace;
 }
 
 .json-editor-delete-btn {
-    aspect-ratio: 1;
-    background: var(--error-color);
-    color: var(--bg-color);
-    border: none;
-    cursor: pointer;
-    display: block;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    width: 1.5em;
+  aspect-ratio: 1;
+  background: var(--error-color);
+  color: var(--background-color);
+  border: none;
+  cursor: pointer;
+  display: block;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 1.5em;
 }
 
 .json-editor-delete-btn:hover {
-    opacity: 0.9;
+  opacity: 0.9;
 }
 
 @media (max-width: 768px) {
-    .json-editor-row {
-        grid-template-columns: 20px 1fr;
-        grid-template-areas:
-            "indicator key"
-            ". type"
-            ". value"
-            ". delete";
-    }
+  .json-editor-row {
+    grid-template-columns: 20px 1fr;
+    grid-template-areas:
+      "indicator key"
+      ". type"
+      ". value"
+      ". delete";
+  }
 
-    .json-editor-validation-indicator {
-        grid-area: indicator;
-    }
+  .json-editor-validation-indicator {
+    grid-area: indicator;
+  }
 
-    .json-editor-key {
-        grid-area: key;
-    }
+  .json-editor-key {
+    grid-area: key;
+  }
 
-    .json-editor-type {
-        grid-area: type;
-    }
+  .json-editor-type {
+    grid-area: type;
+  }
 
-    .json-editor-value {
-        grid-area: value;
-    }
+  .json-editor-value {
+    grid-area: value;
+  }
 
-    .json-editor-delete-btn {
-        grid-area: delete;
-        width: 100%;
-    }
+  .json-editor-delete-btn {
+    grid-area: delete;
+    width: 100%;
+  }
+}
+
+
+.jed-root {
+  position: relative;
+  display: inline-block;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.jed-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border: none;
+  border-radius: 4px;
+  background: var(--bg-color);
+  cursor: pointer;
+}
+
+.jed-button:hover {
+  filter: brightness(0.97);
+}
+
+.jed-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+}
+
+.jed-menu {
+  position: absolute;
+  z-index: 1000;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--bg-color);
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 6px;
+  display: none;
+  max-height: 240px;
+  overflow: auto;
+}
+
+.jed-menu.open {
+  display: block;
+}
+
+.jed-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  width: 1em;
+}
+
+.jed-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.jed-item.selected {
+  outline: 2px solid rgba(0, 0, 0, 0.15);
 }

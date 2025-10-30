@@ -28,21 +28,6 @@ class JSONEntryDropdown extends DataroomElement {
 
     this.value = this.attrs.value || "string";
 
-    // Basic styles (scoped since element doesn't use shadow DOM)
-    const style = document.createElement("style");
-    style.textContent = `
-      .jed-root { position: relative; display: inline-block; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-      .jed-button { display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px; border: none; border-radius: 4px; background: var(--bg-color); cursor: pointer; }
-      .jed-button:hover { filter: brightness(0.97); }
-      .jed-icon { width: 18px; height: 18px; display: inline-flex; }
-      .jed-menu { position: absolute; z-index: 1000; top: calc(100% + 4px); left: 0; background: var(--bg-color); border: none; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); min-width: 160px; padding: 6px; display: none; max-height: 240px; overflow: auto; }
-      .jed-menu.open { display: block; }
-      .jed-item { display: flex; align-items: center; justify-content: center; padding: 6px; cursor: pointer; border-radius: 4px; }
-      .jed-item:hover { background: rgba(0,0,0,0.05); }
-      .jed-item.selected { outline: 2px solid rgba(0,0,0,0.15); }
-    `;
-    this.appendChild(style);
-
     this.root = this.create("div", { class: "jed-root" });
 
     this.button = this.create("button", { type: "button", class: "jed-button", title: this.getLabel(this.value) }, this.root);
