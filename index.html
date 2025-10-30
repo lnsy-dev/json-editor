@@ -32,11 +32,113 @@
     h1, h2, h3 {
       color: var(--complementary-color);
     }
+
+    .test-controls {
+      margin: 2em 0;
+      padding: 1em;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+    }
+
+    .test-controls h2 {
+      margin-top: 0;
+    }
+
+    .test-controls button {
+      margin: 0.5em 0.5em 0.5em 0;
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background: white;
+    }
+
+    .test-controls button:hover {
+      background: #f0f0f0;
+    }
+
+    .test-controls textarea {
+      width: 100%;
+      min-height: 200px;
+      font-family: monospace;
+      padding: 0.5em;
+      box-sizing: border-box;
+      margin-top: 0.5em;
+    }
   </style>
 </head>
 <body>
 
+  <div class="test-controls">
+    <h2>YAML/JSON Converter Test</h2>
+    
+    <div>
+      <button id="load-json-btn">Load Sample JSON</button>
+      <button id="load-yaml-btn">Load Sample YAML</button>
+      <button id="get-json-btn">Get as JSON</button>
+      <button id="get-yaml-btn">Get as YAML</button>
+      <button id="clear-btn">Clear Output</button>
+    </div>
+
+    <textarea id="output" placeholder="Output will appear here..."></textarea>
+  </div>
+
   <json-editor></json-editor>
+
+  <script type="module">
+    const editor = document.querySelector('json-editor');
+    const output = document.getElementById('output');
+
+    // Sample JSON data
+    const sampleJSON = `{
+  "name": "John Doe",
+  "age": 30,
+  "email": "john@example.com",
+  "tags": ["developer", "designer"],
+  "isActive": true,
+  "salary": 75000.50
+}`;
+
+    // Sample YAML data
+    const sampleYAML = `name: Jane Smith
+age: 28
+email: jane@example.com
+tags:
+  - manager
+  - analyst
+isActive: true
+salary: 85000.75`;
+
+    // Load sample JSON
+    document.getElementById('load-json-btn').addEventListener('click', () => {
+      const success = editor.setJSON(sampleJSON);
+      output.value = success ? 'JSON loaded successfully!' : 'Failed to load JSON';
+    });
+
+    // Load sample YAML
+    document.getElementById('load-yaml-btn').addEventListener('click', () => {
+      const success = editor.setYaml(sampleYAML);
+      output.value = success ? 'YAML loaded successfully!' : 'Failed to load YAML';
+    });
+
+    // Get current data as JSON
+    document.getElementById('get-json-btn').addEventListener('click', () => {
+      const json = editor.getJSON();
+      output.value = json;
+    });
+
+    // Get current data as YAML
+    document.getElementById('get-yaml-btn').addEventListener('click', () => {
+      const yaml = editor.getYaml();
+      output.value = yaml;
+    });
+
+    // Clear output
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      output.value = '';
+    });
+  </script>
 
 </body>
 </html>

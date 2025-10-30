@@ -10,6 +10,7 @@
 
 import DataroomElement from "dataroom-js";
 import "./json-entry-dropdown.js";
+import YAMLConverter from "./yaml-converter.js";
 
 class JSONEditor extends DataroomElement {
   /**
@@ -21,6 +22,7 @@ class JSONEditor extends DataroomElement {
     // Initialize data structure
     this.jsonData = {};
     this.rows = [];
+    this.yamlConverter = new YAMLConverter();
 
     // Load initial content if src attribute is provided
     if (this.attrs.src) {
@@ -645,6 +647,56 @@ class JSONEditor extends DataroomElement {
    */
   exportJSON() {
     return this.convertRowsToJSON();
+  }
+
+  /**
+   * Set data from YAML string
+   * @param {string} yamlString - YAML formatted string
+   * @returns {boolean} - Success status
+   */
+  setYaml(yamlString) {
+    const success = this.yamlConverter.setYaml(yamlString);
+    if (success) {
+      this.jsonData = this.yamlConverter.getData();
+      this.convertJSONToRows();
+      this.render();
+      this.handleDataChange();
+    }
+    return success;
+  }
+
+  /**
+   * Get current data as YAML string
+   * @returns {string} - YAML formatted string
+   */
+  getYaml() {
+    this.yamlConverter.setData(this.convertRowsToJSON());
+    return this.yamlConverter.getYaml();
+  }
+
+  /**
+   * Set data from JSON string
+   * @param {string} jsonString - JSON formatted string
+   * @returns {boolean} - Success status
+   */
+  setJSON(jsonString) {
+    const success = this.yamlConverter.setJSON(jsonString);
+    if (success) {
+      this.jsonData = this.yamlConverter.getData();
+      this.convertJSONToRows();
+      this.render();
+      this.handleDataChange();
+    }
+    return success;
+  }
+
+  /**
+   * Get current data as JSON string
+   * @returns {string} - JSON formatted string
+   */
+  getJSON() {
+    this.yamlConverter.setData(this.convertRowsToJSON());
+    return this.yamlConverter.getJSON();
   }
 
   /**
