@@ -334,6 +334,23 @@ class JSONEditor extends DataroomElement {
     this.create("summary", {});
     const container = this.create("div", { class: "json-editor-container" });
 
+    // If no src and no rows, show only the add button
+    if (!this.attrs.src && this.rows.length === 0) {
+      const addButton = this.create(
+        "button",
+        {
+          class: "json-editor-add-btn",
+          content: "+",
+          type: "button",
+        }, container
+      );
+
+      addButton.addEventListener("click", () => {
+        this.addRow()
+      });
+      return;
+    }
+
     // Create header with add button
 
     // Create rows container
