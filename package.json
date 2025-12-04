@@ -1,6 +1,6 @@
 {
   "name": "@lnsy/json-editor",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "JSON and YAML Editor component",
   "main": "dist/main.min.js",
   "repository": {

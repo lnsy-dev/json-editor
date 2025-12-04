@@ -100,7 +100,7 @@ The JSON editor provides a row-based interface where each row represents a key-v
 - **string** - Text values
 - **number** - Numeric values
 - **boolean** - True/false checkbox
-- **money** - Decimal values with 2 decimal places
+- **currency** - Decimal values with 2 decimal places
 - **date** - Date picker (YYYY-MM-DD)
 - **datetime** - Date and time picker
 - **url** - URL with validation
@@ -176,7 +176,7 @@ link by Hassan ali from <a href="https://thenounproject.com/browse/icons/term/li
 json by Lourenchyus from <a href="https://thenounproject.com/browse/icons/term/json/" target="_blank" title="json Icons">Noun Project</a> (CC BY 3.0)
 
 
-Money by fahmionline from <a href="https://thenounproject.com/browse/icons/term/money/" target="_blank" title="Money Icons">Noun Project</a> (CC BY 3.0)
+currency by fahmionline from <a href="https://thenounproject.com/browse/icons/term/currency/" target="_blank" title="currency Icons">Noun Project</a> (CC BY 3.0)
 
 checkbox on by Jan Klever from <a href="https://thenounproject.com/browse/icons/term/checkbox-on/" target="_blank" title="checkbox on Icons">Noun Project</a> (CC BY 3.0)
 

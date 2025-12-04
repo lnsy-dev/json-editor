@@ -96,9 +96,9 @@ class JSONEditor extends DataroomElement {
       return "json";
     }
     if (typeof value === "number") {
-      // Check if it might be money (has 2 decimal places)
+      // Check if it might be currency (has 2 decimal places)
       if (value.toString().match(/^\d+\.\d{2}$/)) {
-        return "money";
+        return "currency";
       }
       if (Number.isInteger(value)) {
         return "integer";
@@ -150,7 +150,7 @@ class JSONEditor extends DataroomElement {
         return parseFloat(value) || 0.0;
       case "integer":
         return parseInt(value, 10) || 0;
-      case "money":
+      case "currency":
         return parseFloat(value) || 0.0;
       case "array of strings":
         if (typeof value === "string") {
@@ -238,9 +238,9 @@ class JSONEditor extends DataroomElement {
         return !isNaN(parseFloat(value)) && isFinite(value);
       case "integer":
         return Number.isInteger(parseFloat(value));
-      case "money":
-        const moneyVal = parseFloat(value);
-        return !isNaN(moneyVal) && isFinite(moneyVal);
+      case "currency":
+        const currencyVal = parseFloat(value);
+        return !isNaN(currencyVal) && isFinite(currencyVal);
       case "date":
         const date = new Date(value);
         return date instanceof Date && !isNaN(date);
@@ -306,7 +306,7 @@ class JSONEditor extends DataroomElement {
         return typeof value === "object"
           ? JSON.stringify(value, null, 2)
           : value;
-      case "money":
+      case "currency":
         return typeof value === "number" ? value.toFixed(2) : value;
       case "float":
         return typeof value === "number" ? value : value;
@@ -526,14 +526,14 @@ class JSONEditor extends DataroomElement {
         },
         rowElement,
       );
-    } else if (row.type === "number" || row.type === "money" || row.type === "float" || row.type === "integer") {
+    } else if (row.type === "number" || row.type === "currency" || row.type === "float" || row.type === "integer") {
       valueInput = this.create(
         "input",
         {
           type: "number",
           class: "json-editor-value",
-          placeholder: row.type === "money" ? "0.00" : (row.type === "integer" ? "0" : "Number"),
-          step: row.type === "money" ? "0.01" : (row.type === "integer" ? "1" : "any"),
+          placeholder: row.type === "currency" ? "0.00" : (row.type === "integer" ? "0" : "Number"),
+          step: row.type === "currency" ? "0.01" : (row.type === "integer" ? "1" : "any"),
           value: this.formatValueForInput(row.value, row.type),
         },
         rowElement,

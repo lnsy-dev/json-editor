@@ -133,7 +133,7 @@ The editor auto-detects and validates these types:
 | **string** | Text values | text | Always valid |
 | **number** | Numeric values | number | Must be valid number |
 | **boolean** | True/false | checkbox | Always valid |
-| **money** | Decimal with 2 places | number (step=0.01) | Must be valid number |
+| **currency** | Decimal with 2 places | number (step=0.01) | Must be valid number |
 | **date** | Date only (YYYY-MM-DD) | date | Must be valid date |
 | **datetime** | Date and time | datetime-local | Must be valid datetime |
 | **url** | Web URLs | url | Must be valid URL |
@@ -147,7 +147,7 @@ The editor auto-detects and validates these types:
 When loading data, the component automatically detects types:
 
 - **boolean**: JavaScript boolean values
-- **number**: Numeric values (detects money if has 2 decimal places)
+- **number**: Numeric values (detects currency if has 2 decimal places)
 - **array**: Arrays (detects tag list if all items are single words)
 - **object**: Objects (detects location if has latitude/longitude/altitude keys)
 - **string**: Checks for URL format, datetime format (with time), or date format

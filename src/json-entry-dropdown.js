@@ -24,7 +24,7 @@ class JSONEntryDropdown extends DataroomElement {
       { value: "url", iconKey: "link", label: "URL" },
       { value: "location", iconKey: "globe", label: "Location" },
       { value: "json", iconKey: "json", label: "JSON" },
-      { value: "money", iconKey: "money", label: "Money" },
+      { value: "currency", iconKey: "currency", label: "currency" },
       { value: "boolean", iconKey: "checkbox", label: "Boolean" },
     ];
 
