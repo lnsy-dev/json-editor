@@ -100,14 +100,17 @@ class JSONEditor extends DataroomElement {
       if (value.toString().match(/^\d+\.\d{2}$/)) {
         return "money";
       }
-      return "number";
+      if (Number.isInteger(value)) {
+        return "integer";
+      }
+      return "float";
     }
     if (typeof value === "string") {
       // Check if it's a URL
       try {
         new URL(value);
         return "url";
-      } catch {}
+      } catch { }
       // Check if it's a datetime (has time component)
       if (!isNaN(Date.parse(value)) && (value.includes("T") || value.match(/\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}/))) {
         return "datetime";
@@ -143,6 +146,10 @@ class JSONEditor extends DataroomElement {
         return value === true || value === 'true';
       case "number":
         return parseFloat(value) || 0;
+      case "float":
+        return parseFloat(value) || 0.0;
+      case "integer":
+        return parseInt(value, 10) || 0;
       case "money":
         return parseFloat(value) || 0.0;
       case "array of strings":
@@ -227,6 +234,10 @@ class JSONEditor extends DataroomElement {
         return true;
       case "number":
         return !isNaN(parseFloat(value)) && isFinite(value);
+      case "float":
+        return !isNaN(parseFloat(value)) && isFinite(value);
+      case "integer":
+        return Number.isInteger(parseFloat(value));
       case "money":
         const moneyVal = parseFloat(value);
         return !isNaN(moneyVal) && isFinite(moneyVal);
@@ -267,9 +278,9 @@ class JSONEditor extends DataroomElement {
         const tags =
           typeof value === "string"
             ? value
-                .split(",")
-                .map((s) => s.trim())
-                .filter((s) => s)
+              .split(",")
+              .map((s) => s.trim())
+              .filter((s) => s)
             : Array.isArray(value)
               ? value
               : [];
@@ -297,6 +308,10 @@ class JSONEditor extends DataroomElement {
           : value;
       case "money":
         return typeof value === "number" ? value.toFixed(2) : value;
+      case "float":
+        return typeof value === "number" ? value : value;
+      case "integer":
+        return typeof value === "number" ? value.toFixed(0) : value;
       case "date":
         if (value instanceof Date) {
           return value.toISOString().split("T")[0];
@@ -511,14 +526,14 @@ class JSONEditor extends DataroomElement {
         },
         rowElement,
       );
-    } else if (row.type === "number" || row.type === "money") {
+    } else if (row.type === "number" || row.type === "money" || row.type === "float" || row.type === "integer") {
       valueInput = this.create(
         "input",
         {
           type: "number",
           class: "json-editor-value",
-          placeholder: row.type === "money" ? "0.00" : "Number",
-          step: row.type === "money" ? "0.01" : "any",
+          placeholder: row.type === "money" ? "0.00" : (row.type === "integer" ? "0" : "Number"),
+          step: row.type === "money" ? "0.01" : (row.type === "integer" ? "1" : "any"),
           value: this.formatValueForInput(row.value, row.type),
         },
         rowElement,
@@ -598,8 +613,8 @@ class JSONEditor extends DataroomElement {
         validationIndicator.textContent = "✓";
       }
     } else {
-        validationIndicator.classList.add("valid");
-        validationIndicator.textContent = "✓";
+      validationIndicator.classList.add("valid");
+      validationIndicator.textContent = "✓";
     }
 
     // Delete button
@@ -647,6 +662,17 @@ class JSONEditor extends DataroomElement {
    */
   exportJSON() {
     return this.convertRowsToJSON();
+  }
+
+  /**
+   * Export current JSON with schema (key, type, value)
+   */
+  exportJSONWithSchema() {
+    return this.rows.map(row => ({
+      key: row.key,
+      type: row.type,
+      value: this.parseValue(row.value, row.type)
+    }));
   }
 
   /**

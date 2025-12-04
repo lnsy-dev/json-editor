@@ -13,19 +13,19 @@
 */
 
 
-:root {  
+:root {
 
-  --background-color: #dddbc7;       
-  --foreground-color: #2d2d2d;           
-  --highlight-color: #b3d9b6; 
-  --secondary-color: #ede9d7;    
+  --background-color: #dddbc7;
+  --foreground-color: #2d2d2d;
+  --highlight-color: #b3d9b6;
+  --secondary-color: #ede9d7;
   --trinary-color: #8aa38a;
-  --quaternary-color: #d4cfbd;  
+  --quaternary-color: #d4cfbd;
   --confirmation-color: #0a5c0a;
-  --notification-color: #377c43; 
-  --inactive-color: #cccccc;   
-  --warning-color: #639e71;     
-  --error-color: #ff6b6b;      
-  --neutral-color: #1c3320;     
+  --notification-color: #377c43;
+  --inactive-color: #cccccc;
+  --warning-color: #639e71;
+  --error-color: #ff6b6b;
+  --neutral-color: #1c3320;
 
 }

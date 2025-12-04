@@ -15,6 +15,8 @@ class JSONEntryDropdown extends DataroomElement {
     this.typeIconMap = [
       { value: "string", iconKey: "text", label: "String" },
       { value: "number", iconKey: "number", label: "Number" },
+      { value: "float", iconKey: "float", label: "Float" },
+      { value: "integer", iconKey: "integer", label: "Integer" },
       { value: "date", iconKey: "calendar", label: "Date" },
       { value: "datetime", iconKey: "datetime", label: "Datetime" },
       { value: "array of strings", iconKey: "array", label: "Array of strings" },
@@ -99,6 +101,25 @@ class JSONEntryDropdown extends DataroomElement {
   }
 
   openMenu() {
+    // Reset positioning styles
+    this.menu.style.top = "";
+    this.menu.style.bottom = "";
+
+    // Calculate available space
+    const buttonRect = this.button.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - buttonRect.bottom;
+    const minHeightNeeded = 200; // Approximate height of the menu
+
+    if (spaceBelow < minHeightNeeded) {
+      // Position above
+      this.menu.style.bottom = "100%";
+      this.menu.style.marginBottom = "4px"; // Add some spacing
+    } else {
+      // Position below
+      this.menu.style.top = "100%";
+      this.menu.style.marginTop = "4px"; // Add some spacing
+    }
+
     this.menu.classList.add("open");
   }
 

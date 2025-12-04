@@ -77,6 +77,7 @@
       <button id="load-json-btn">Load Sample JSON</button>
       <button id="load-yaml-btn">Load Sample YAML</button>
       <button id="get-json-btn">Get as JSON</button>
+      <button id="get-json-schema-btn">Get as JSON with Schema</button>
       <button id="get-yaml-btn">Get as YAML</button>
       <button id="clear-btn">Clear Output</button>
     </div>
@@ -126,6 +127,12 @@ salary: 85000.75`;
     document.getElementById('get-json-btn').addEventListener('click', () => {
       const json = editor.getJSON();
       output.value = json;
+    });
+
+    // Get current data as JSON with Schema
+    document.getElementById('get-json-schema-btn').addEventListener('click', () => {
+      const data = editor.exportJSONWithSchema();
+      output.value = JSON.stringify(data, null, 2);
     });
 
     // Get current data as YAML
