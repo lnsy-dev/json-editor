@@ -22,6 +22,7 @@ class JSONEntryDropdown extends DataroomElement {
       { value: "array of strings", iconKey: "array", label: "Array of strings" },
       { value: "tag list", iconKey: "tag", label: "Tag list" },
       { value: "url", iconKey: "link", label: "URL" },
+      { value: "dropdown", iconKey: "dropdown", label: "Dropdown" },
       { value: "location", iconKey: "globe", label: "Location" },
       { value: "json", iconKey: "json", label: "JSON" },
       { value: "currency", iconKey: "currency", label: "currency" },

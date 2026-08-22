@@ -1,12 +1,7 @@
-json-editor {
-  margin-top: calc(var(--header-height) * 1);
-}
-
 .json-editor-container {
   padding: 1rem;
   min-width: 100%;
   text-align: right;
-
 }
 
 .json-editor-header {
@@ -19,14 +14,14 @@ json-editor {
 
 .json-editor-header h3 {
   margin: 0;
-  color: var(--foreground-color);
+  color: var(--foreground-color, currentColor);
 }
 
 .json-editor-add-btn {
   aspect-ratio: 1;
   margin-left: auto;
-  background: var(--confirmation-color);
-  color: var(--background-color);
+  background: var(--confirmation-color, ButtonFace);
+  color: var(--background-color, ButtonText);
   border: none;
   cursor: pointer;
   font-weight: bold;
@@ -55,9 +50,9 @@ json-editor {
 .json-editor-type,
 .json-editor-value {
   padding: 0.5rem;
-  border: 1px solid var(--quaternary-color);
-  background: var(--background-color);
-  color: var(--foreground-color);
+  border: 1px solid var(--quaternary-color, currentColor);
+  background: var(--background-color, transparent);
+  color: var(--foreground-color, currentColor);
 }
 
 .json-editor-type {
@@ -78,17 +73,17 @@ json-editor {
 .json-editor-key:focus,
 .json-editor-type:focus,
 .json-editor-value:focus {
-  outline: 2px solid var(--trinary-color);
+  outline: 2px solid var(--trinary-color, currentColor);
   outline-offset: 1px;
 }
 
 .json-editor-invalid {
-  border-color: var(--error-color) !important;
-  background-color: rgba(255, 0, 0, 0.05);
+  border-color: var(--error-color, currentColor) !important;
+  background-color: color-mix(in srgb, var(--error-color, currentColor) 5%, transparent);
 }
 
 .json-editor-invalid:focus {
-  outline-color: var(--error-color);
+  outline-color: var(--error-color, currentColor);
 }
 
 .json-editor-validation-indicator {
@@ -102,11 +97,11 @@ json-editor {
 }
 
 .json-editor-validation-indicator.valid {
-  color: var(--confirmation-color);
+  color: var(--confirmation-color, currentColor);
 }
 
 .json-editor-validation-indicator.invalid {
-  color: var(--error-color);
+  color: var(--error-color, currentColor);
 }
 
 .json-editor-textarea {
@@ -114,10 +109,22 @@ json-editor {
   font-family: monospace;
 }
 
+.json-editor-dropdown-select {
+  padding: 0.5rem;
+  border: 1px solid var(--quaternary-color, currentColor);
+  background: var(--background-color, transparent);
+  color: var(--foreground-color, currentColor);
+}
+
+.json-editor-dropdown-select:focus {
+  outline: 2px solid var(--trinary-color, currentColor);
+  outline-offset: 1px;
+}
+
 .json-editor-delete-btn {
   aspect-ratio: 1;
-  background: var(--error-color);
-  color: var(--background-color);
+  background: var(--error-color, ButtonFace);
+  color: var(--background-color, ButtonText);
   border: none;
   cursor: pointer;
   display: block;
@@ -177,7 +184,7 @@ json-editor {
   padding: 4px 6px;
   border: none;
   border-radius: 4px;
-  background: var(--bg-color);
+  background: var(--bg-color, transparent);
   cursor: pointer;
 }
 
@@ -195,10 +202,10 @@ json-editor {
   position: absolute;
   z-index: 1000;
   left: 0;
-  background: var(--bg-color);
-  border: 1px solid var(--quaternary-color);
+  background: var(--bg-color, transparent);
+  border: 1px solid var(--quaternary-color, currentColor);
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--json-editor-menu-shadow, 0 4px 12px color-mix(in srgb, currentColor 15%, transparent));
   padding: 8px;
   display: none;
   /* Grid layout */
@@ -226,9 +233,9 @@ json-editor {
 }
 
 .jed-item:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: color-mix(in srgb, var(--foreground-color, currentColor) 5%, transparent);
 }
 
 .jed-item.selected {
-  outline: 2px solid rgba(0, 0, 0, 0.15);
+  outline: 2px solid color-mix(in srgb, var(--foreground-color, currentColor) 15%, transparent);
 }

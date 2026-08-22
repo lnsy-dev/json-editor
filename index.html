@@ -10,9 +10,21 @@
       --primary-hue: 27; /* Original primary hue */  
       --saturation: 100%;  
       --lightness: 50%; 
-      --bg-color: #FFF8E7;
-      --fg-coor: black; 
 
+      /* json-editor demo theme */
+      --background-color: #dddbc7;
+      --foreground-color: #2d2d2d;
+      --highlight-color: #b3d9b6;
+      --secondary-color: #ede9d7;
+      --trinary-color: #8aa38a;
+      --quaternary-color: #d4cfbd;
+      --confirmation-color: #0a5c0a;
+      --notification-color: #377c43;
+      --inactive-color: #cccccc;
+      --warning-color: #639e71;
+      --error-color: #ff6b6b;
+      --neutral-color: #1c3320;
+      --bg-color: #FFF8E7;
     }
 
     body {
@@ -76,6 +88,7 @@
     <div>
       <button id="load-json-btn">Load Sample JSON</button>
       <button id="load-yaml-btn">Load Sample YAML</button>
+      <button id="load-dropdown-btn">Load Dropdown Example</button>
       <button id="get-json-btn">Get as JSON</button>
       <button id="get-json-schema-btn">Get as JSON with Schema</button>
       <button id="get-yaml-btn">Get as YAML</button>
@@ -111,6 +124,12 @@ tags:
 isActive: true
 salary: 85000.75`;
 
+    // Dropdown example schema JSON
+    const dropdownJSON = `[
+  { "key": "name", "type": "string", "value": "Task" },
+  { "key": "status", "type": "dropdown", "value": "active", "optionsUrl": "examples/dropdown-options.json" }
+]`;
+
     // Load sample JSON
     document.getElementById('load-json-btn').addEventListener('click', () => {
       const success = editor.setJSON(sampleJSON);
@@ -121,6 +140,12 @@ salary: 85000.75`;
     document.getElementById('load-yaml-btn').addEventListener('click', () => {
       const success = editor.setYaml(sampleYAML);
       output.value = success ? 'YAML loaded successfully!' : 'Failed to load YAML';
+    });
+
+    // Load dropdown example
+    document.getElementById('load-dropdown-btn').addEventListener('click', () => {
+      const success = editor.setJSON(dropdownJSON);
+      output.value = success ? 'Dropdown example loaded successfully!' : 'Failed to load dropdown example';
     });
 
     // Get current data as JSON

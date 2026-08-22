@@ -9,23 +9,37 @@
   
   *** end ascii art ***
   
-  Most aesthethic options should live here for adjustment
+  This file intentionally does not define color values.
+  
+  The json-editor component is designed to be theme-agnostic.
+  Define the following CSS variables in your own stylesheet or :root
+  to theme the component to match your application.
+  
+  Available theme variables:
+    --background-color   : input/row backgrounds
+    --foreground-color   : text color
+    --highlight-color    : accent highlight (currently unused)
+    --secondary-color    : secondary background (currently unused)
+    --trinary-color      : focus outline color
+    --quaternary-color   : borders
+    --confirmation-color : add button background, valid indicator
+    --notification-color : notification/accent (currently unused)
+    --inactive-color     : disabled/inactive state (currently unused)
+    --warning-color      : warning state (currently unused)
+    --error-color        : delete button background, invalid state
+    --neutral-color      : strong neutral accent (currently unused)
+    --bg-color           : dropdown button and menu backgrounds
+    --json-editor-menu-shadow : dropdown menu shadow (e.g. 0 4px 12px rgba(0,0,0,0.15))
+  
+  Example:
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #1a1a1a;
+      --confirmation-color: #0a5c0a;
+      --error-color: #ff6b6b;
+      --quaternary-color: #d4cfbd;
+      --trinary-color: #8aa38a;
+      --bg-color: #ffffff;
+      --json-editor-menu-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
 */
-
-
-:root {
-
-  --background-color: #dddbc7;
-  --foreground-color: #2d2d2d;
-  --highlight-color: #b3d9b6;
-  --secondary-color: #ede9d7;
-  --trinary-color: #8aa38a;
-  --quaternary-color: #d4cfbd;
-  --confirmation-color: #0a5c0a;
-  --notification-color: #377c43;
-  --inactive-color: #cccccc;
-  --warning-color: #639e71;
-  --error-color: #ff6b6b;
-  --neutral-color: #1c3320;
-
-}

@@ -17,7 +17,10 @@
   },
   "homepage": "https://github.com/DATAROOM-NETWORK/json-editor#readme",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:unit": "vitest run",
+    "test:mutation": "stryker run",
     "start": "rspack serve",
     "build": "rspack build"
   },
@@ -26,12 +29,16 @@
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.52.0",
     "@rspack/cli": "^1.5.6",
     "@rspack/core": "^1.5.6",
     "@rspack/dev-server": "^1.1.4",
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
     "css-loader": "^7.1.2",
     "dotenv": "^17.2.2",
-    "style-loader": "^4.0.0"
+    "style-loader": "^4.0.0",
+    "vitest": "^3.2.4"
   },
   "files": [
     "dist/main.js",

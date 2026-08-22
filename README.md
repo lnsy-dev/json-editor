@@ -44,6 +44,26 @@ npm run build
 
 This will create a `dist` folder with the bundled and optimized files.
 
+## Testing
+
+The project uses Vitest for unit tests, Playwright for end-to-end and behavioral tests, and Stryker for mutation testing.
+
+```bash
+# Run unit tests (fast, no browser)
+npm run test:unit
+
+# Run E2E and behavioral tests in a headless browser
+npm test
+
+# Open the Playwright UI for debugging
+npm run test:ui
+
+# Run mutation tests (requires NODE_OPTIONS=--max-old-space-size=4096 on some machines)
+npm run test:mutation
+```
+
+Pure logic lives in `src/*-logic.js` modules and is covered by the unit suite. Custom element behavior is covered by the Playwright suites in `tests/e2e/` and `tests/behavioral/`.
+
 ## Customizing the Build
 
 You can customize the build output by creating a `.env` file in the root of the project.
@@ -108,6 +128,7 @@ The JSON editor provides a row-based interface where each row represents a key-v
 - **tag list** - Comma-separated tags (single words only)
 - **location** - JSON object with latitude, longitude, altitude
 - **json** - Nested JSON objects
+- **dropdown** - Select from options loaded from a JSON file or endpoint configured in the schema (`optionsUrl`)
 
 ### YAML/JSON Conversion API
 
@@ -132,6 +153,21 @@ console.log(json);
 const yaml = editor.getYaml();
 console.log(yaml);
 ```
+
+### Schema-driven Dropdowns
+
+Dropdown types are configured through the editor schema. Load a schema array where each row specifies `key`, `type`, `value`, and optionally `optionsUrl`:
+
+```javascript
+const schema = `[
+  { "key": "name", "type": "string", "value": "Task" },
+  { "key": "status", "type": "dropdown", "value": "active", "optionsUrl": "options.json" }
+]`;
+
+editor.setJSON(schema);
+```
+
+`optionsUrl` points to a JSON endpoint that returns either an array of strings or an array of `{ value, label }` objects. The endpoint URL is stored in the schema and is not shown in the editor UI.
 
 ### Events
 

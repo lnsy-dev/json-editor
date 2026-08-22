@@ -320,17 +320,25 @@ These are bundled in the distributed file, so no additional imports are needed.
 
 ## Styling
 
-The component includes default styles. To customize:
+The component does not ship with a fixed color theme. Its CSS uses variables with neutral fallbacks (system colors and `currentColor`) so it inherits the surrounding page's look by default.
+
+Define the following variables on `json-editor`, a parent element, or `:root` to theme it:
 
 ```css
-/* Override CSS variables */
 json-editor {
-  --primary-color: #007bff;
-  --border-color: #ddd;
+  --background-color: #ffffff;
+  --foreground-color: #1a1a1a;
+  --confirmation-color: #0a5c0a;
   --error-color: #dc3545;
+  --quaternary-color: #d4cfbd;
+  --trinary-color: #8aa38a;
+  --bg-color: #ffffff;
 }
+```
 
-/* Target specific elements */
+You can also target specific elements:
+
+```css
 json-editor .json-editor-row {
   padding: 0.5em;
 }

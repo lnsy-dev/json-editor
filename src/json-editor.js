@@ -11,6 +11,14 @@
 import DataroomElement from "dataroom-js";
 import "./json-entry-dropdown.js";
 import YAMLConverter from "./yaml-converter.js";
+import {
+  detectType,
+  parseValue,
+  validateValue,
+  formatValueForInput,
+  convertJSONToRows as convertJSONToRowsLogic,
+  convertRowsToJSON as convertRowsToJSONLogic,
+} from "./json-editor-logic.js";
 
 class JSONEditor extends DataroomElement {
   /**
@@ -63,279 +71,42 @@ class JSONEditor extends DataroomElement {
    * Convert JSON object to rows array for editing
    */
   convertJSONToRows() {
-    this.rows = [];
-    for (const [key, value] of Object.entries(this.jsonData)) {
-      this.rows.push({
-        key: key,
-        type: this.detectType(value),
-        value: value,
-      });
-    }
+    this.rows = convertJSONToRowsLogic(this.jsonData);
   }
 
   /**
    * Detect the type of a value
    */
   detectType(value) {
-    if (typeof value === 'boolean') return 'boolean';
-    if (value === null || value === undefined) return "string";
-    if (Array.isArray(value)) {
-      // Check if it's a tag list (array of single words)
-      if (
-        value.every((item) => typeof item === "string" && !item.includes(" "))
-      ) {
-        return "tag list";
-      }
-      return "array of strings";
-    }
-    if (typeof value === "object") {
-      const keys = Object.keys(value);
-      if (["latitude", "longitude", "altitude"].every((k) => keys.includes(k))) {
-        return "location";
-      }
-      return "json";
-    }
-    if (typeof value === "number") {
-      // Check if it might be currency (has 2 decimal places)
-      if (value.toString().match(/^\d+\.\d{2}$/)) {
-        return "currency";
-      }
-      if (Number.isInteger(value)) {
-        return "integer";
-      }
-      return "float";
-    }
-    if (typeof value === "string") {
-      // Check if it's a URL
-      try {
-        new URL(value);
-        return "url";
-      } catch { }
-      // Check if it's a datetime (has time component)
-      if (!isNaN(Date.parse(value)) && (value.includes("T") || value.match(/\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}/))) {
-        return "datetime";
-      }
-      // Check if it's a date
-      if (!isNaN(Date.parse(value)) && value.match(/\d{4}-\d{2}-\d{2}/)) {
-        return "date";
-      }
-      return "string";
-    }
-    return "string";
+    return detectType(value);
   }
 
   /**
    * Convert rows back to JSON object
    */
   convertRowsToJSON() {
-    const json = {};
-    this.rows.forEach((row) => {
-      if (row.key) {
-        json[row.key] = this.parseValue(row.value, row.type);
-      }
-    });
-    return json;
+    return convertRowsToJSONLogic(this.rows);
   }
 
   /**
    * Parse value based on type
    */
   parseValue(value, type) {
-    switch (type) {
-      case "boolean":
-        return value === true || value === 'true';
-      case "number":
-        return parseFloat(value) || 0;
-      case "float":
-        return parseFloat(value) || 0.0;
-      case "integer":
-        return parseInt(value, 10) || 0;
-      case "currency":
-        return parseFloat(value) || 0.0;
-      case "array of strings":
-        if (typeof value === "string") {
-          return value
-            .split(",")
-            .map((s) => s.trim())
-            .filter((s) => s);
-        }
-        return Array.isArray(value) ? value : [];
-      case "tag list":
-        if (typeof value === "string") {
-          return value
-            .split(",")
-            .map((s) => s.trim())
-            .filter((s) => s && !s.includes(" "));
-        }
-        return Array.isArray(value)
-          ? value.filter((s) => !s.includes(" "))
-          : [];
-      case "location":
-        if (typeof value === "string") {
-          const trimmed = value.trim();
-          if (trimmed === "") {
-            return { latitude: "0.00", longitude: "0.00", altitude: "0.00" };
-          }
-          try {
-            const obj = JSON.parse(value);
-            return {
-              latitude: String(obj?.latitude ?? "0.00"),
-              longitude: String(obj?.longitude ?? "0.00"),
-              altitude: String(obj?.altitude ?? "0.00"),
-            };
-          } catch {
-            return { latitude: "0.00", longitude: "0.00", altitude: "0.00" };
-          }
-        }
-        if (typeof value === "object" && value !== null) {
-          return {
-            latitude: String(value.latitude ?? "0.00"),
-            longitude: String(value.longitude ?? "0.00"),
-            altitude: String(value.altitude ?? "0.00"),
-          };
-        }
-        return { latitude: "0.00", longitude: "0.00", altitude: "0.00" };
-      case "json":
-        if (typeof value === "string") {
-          try {
-            return JSON.parse(value);
-          } catch {
-            return {};
-          }
-        }
-        return typeof value === "object" ? value : {};
-      case "date":
-        if (value instanceof Date) {
-          return value.toISOString().split("T")[0];
-        }
-        return value || "";
-      case "datetime":
-        if (value instanceof Date) {
-          return value.toISOString();
-        }
-        return value || "";
-      case "url":
-        return value || "";
-      case "string":
-      default:
-        return value || "";
-    }
+    return parseValue(value, type);
   }
 
   /**
    * Validate value against type
    */
   validateValue(value, type) {
-    // Empty values are always valid
-    if (value === "" || value === null || value === undefined) return true;
-
-    switch (type) {
-      case "boolean":
-        return true;
-      case "number":
-        return !isNaN(parseFloat(value)) && isFinite(value);
-      case "float":
-        return !isNaN(parseFloat(value)) && isFinite(value);
-      case "integer":
-        return Number.isInteger(parseFloat(value));
-      case "currency":
-        const currencyVal = parseFloat(value);
-        return !isNaN(currencyVal) && isFinite(currencyVal);
-      case "date":
-        const date = new Date(value);
-        return date instanceof Date && !isNaN(date);
-      case "datetime":
-        const dt = new Date(value);
-        return dt instanceof Date && !isNaN(dt);
-      case "url":
-        try {
-          new URL(value);
-          return true;
-        } catch {
-          return false;
-        }
-      case "location":
-        try {
-          const obj = typeof value === "string" ? JSON.parse(value) : value;
-          if (!obj || typeof obj !== "object") return false;
-          const hasKeys = ["latitude", "longitude", "altitude"].every((k) => Object.prototype.hasOwnProperty.call(obj, k));
-          if (!hasKeys) return false;
-          const vals = [obj.latitude, obj.longitude, obj.altitude];
-          return vals.every((v) => v === "" || v === null || v === undefined || !isNaN(parseFloat(v)));
-        } catch {
-          return false;
-        }
-      case "json":
-        try {
-          if (typeof value === "string") {
-            JSON.parse(value);
-          }
-          return true;
-        } catch {
-          return false;
-        }
-      case "tag list":
-        const tags =
-          typeof value === "string"
-            ? value
-              .split(",")
-              .map((s) => s.trim())
-              .filter((s) => s)
-            : Array.isArray(value)
-              ? value
-              : [];
-        return tags.every((tag) => !tag.includes(" "));
-      case "array of strings":
-      case "string":
-        return true; // These are always valid
-      default:
-        return true;
-    }
+    return validateValue(value, type);
   }
 
   /**
    * Format value for display in input
    */
   formatValueForInput(value, type) {
-    switch (type) {
-      case "array of strings":
-      case "tag list":
-        return Array.isArray(value) ? value.join(", ") : value;
-      case "location":
-      case "json":
-        return typeof value === "object"
-          ? JSON.stringify(value, null, 2)
-          : value;
-      case "currency":
-        return typeof value === "number" ? value.toFixed(2) : value;
-      case "float":
-        return typeof value === "number" ? value : value;
-      case "integer":
-        return typeof value === "number" ? value.toFixed(0) : value;
-      case "date":
-        if (value instanceof Date) {
-          return value.toISOString().split("T")[0];
-        }
-        return value;
-      case "datetime":
-        // Convert to input[type=datetime-local] format (YYYY-MM-DDTHH:MM) in local time when possible
-        const formatLocal = (d) => {
-          const pad = (n) => String(n).padStart(2, "0");
-          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-        };
-        if (value instanceof Date) {
-          return formatLocal(value);
-        }
-        if (typeof value === "string") {
-          // If already in acceptable format, return as-is
-          if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return value;
-          const d = new Date(value);
-          if (!isNaN(d)) return formatLocal(d);
-        }
-        return value;
-      default:
-        return value;
-    }
+    return formatValueForInput(value, type);
   }
 
   /**
@@ -400,7 +171,7 @@ class JSONEditor extends DataroomElement {
   /**
    * Render a single row
    */
-  renderRow(row, index, container) {
+  async renderRow(row, index, container) {
     const rowElement = this.create(
       "div",
       { class: "json-editor-row", "data-index": index },
@@ -479,11 +250,20 @@ class JSONEditor extends DataroomElement {
         },
         rowElement
       );
-      valueInput.checked = this.parseValue(row.value, 'boolean');
+      valueInput.checked = parseValue(row.value, 'boolean');
       valueInput.addEventListener('change', (e) => {
         this.rows[index].value = e.target.checked;
         this.handleDataChange();
       });
+    } else if (row.type === "dropdown") {
+      valueInput = this.create(
+        "select",
+        { class: "json-editor-value json-editor-dropdown-select" },
+        rowElement,
+      );
+
+      await this.populateDropdownOptions(valueInput, row.optionsUrl);
+      valueInput.value = this.formatValueForInput(row.value, row.type) || "";
     } else if (row.type === "location") {
       valueInput = this.create(
         "textarea",
@@ -658,6 +438,41 @@ class JSONEditor extends DataroomElement {
   }
 
   /**
+   * Fetch options from a URL and populate a select element.
+   * Supports arrays of strings or arrays of { value, label } objects.
+   */
+  async populateDropdownOptions(selectElement, url) {
+    selectElement.innerHTML = "";
+    this.create("option", { value: "", content: "-- Select --" }, selectElement);
+
+    if (!url) return;
+
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        const options = await response.json();
+        if (Array.isArray(options)) {
+          options.forEach((option) => {
+            const optionValue =
+              typeof option === "string" ? option : option.value;
+            const optionLabel =
+              typeof option === "string" ? option : (option.label || option.value);
+            if (optionValue !== undefined && optionValue !== null) {
+              this.create(
+                "option",
+                { value: String(optionValue), content: String(optionLabel) },
+                selectElement,
+              );
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error loading dropdown options:", error);
+    }
+  }
+
+  /**
    * Export current JSON
    */
   exportJSON() {
@@ -671,7 +486,8 @@ class JSONEditor extends DataroomElement {
     return this.rows.map(row => ({
       key: row.key,
       type: row.type,
-      value: this.parseValue(row.value, row.type)
+      value: parseValue(row.value, row.type),
+      ...(row.optionsUrl ? { optionsUrl: row.optionsUrl } : {}),
     }));
   }
 
