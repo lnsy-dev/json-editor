@@ -123,3 +123,55 @@ test.describe('Feature: Edit JSON', () => {
     });
   });
 });
+
+test.describe('Feature: Prevent new fields', () => {
+  const sampleJSON = JSON.stringify({
+    name: 'John Doe',
+    age: 30,
+  });
+
+  test('Scenario: no-new-fields hides the add button', async ({ page }) => {
+    await test.step('Given the editor has loaded JSON and the no-new-fields attribute', async () => {
+      await page.goto('/');
+      await page.evaluate((json) => {
+        const editor = document.querySelector('json-editor');
+        editor.setJSON(json);
+        editor.setAttribute('no-new-fields', '');
+      }, sampleJSON);
+    });
+
+    await test.step('Then the existing rows are still visible', async () => {
+      const rows = page.locator('json-editor .json-editor-row');
+      await expect(rows).toHaveCount(2);
+      await expect(rows.first().locator('.json-editor-key')).toHaveValue('name');
+    });
+
+    await test.step('And the add button is hidden', async () => {
+      const addButton = page.locator('json-editor .json-editor-add-btn');
+      await expect(addButton).toHaveCount(0);
+    });
+  });
+
+  test('Scenario: no-new-fields prevents programmatically adding rows', async ({ page }) => {
+    await test.step('Given the editor has loaded JSON and the no-new-fields attribute', async () => {
+      await page.goto('/');
+      await page.evaluate((json) => {
+        const editor = document.querySelector('json-editor');
+        editor.setJSON(json);
+        editor.setAttribute('no-new-fields', '');
+      }, sampleJSON);
+    });
+
+    await test.step('When addRow is called programmatically', async () => {
+      await page.evaluate(() => {
+        const editor = document.querySelector('json-editor');
+        editor.addRow();
+      });
+    });
+
+    await test.step('Then no new row is added', async () => {
+      const rows = page.locator('json-editor .json-editor-row');
+      await expect(rows).toHaveCount(2);
+    });
+  });
+});

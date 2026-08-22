@@ -102,23 +102,17 @@ class JSONEntryDropdown extends DataroomElement {
   }
 
   openMenu() {
-    // Reset positioning styles
-    this.menu.style.top = "";
-    this.menu.style.bottom = "";
-
     // Calculate available space
     const buttonRect = this.button.getBoundingClientRect();
     const spaceBelow = window.innerHeight - buttonRect.bottom;
     const minHeightNeeded = 200; // Approximate height of the menu
 
     if (spaceBelow < minHeightNeeded) {
-      // Position above
-      this.menu.style.bottom = "100%";
-      this.menu.style.marginBottom = "4px"; // Add some spacing
+      this.menu.classList.add("above");
+      this.menu.classList.remove("below");
     } else {
-      // Position below
-      this.menu.style.top = "100%";
-      this.menu.style.marginTop = "4px"; // Add some spacing
+      this.menu.classList.add("below");
+      this.menu.classList.remove("above");
     }
 
     this.menu.classList.add("open");
@@ -126,6 +120,7 @@ class JSONEntryDropdown extends DataroomElement {
 
   closeMenu() {
     this.menu.classList.remove("open");
+    this.menu.classList.remove("above", "below");
   }
 
   handleDocClick = () => {

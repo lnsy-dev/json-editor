@@ -332,7 +332,6 @@ json-editor {
   --error-color: #dc3545;
   --quaternary-color: #d4cfbd;
   --trinary-color: #8aa38a;
-  --bg-color: #ffffff;
 }
 ```
 

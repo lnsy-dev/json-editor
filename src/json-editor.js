@@ -42,6 +42,9 @@ class JSONEditor extends DataroomElement {
       if (data.attribute === "src" && data.newValue) {
         this.loadJSON(data.newValue);
       }
+      if (data.attribute === "no-new-fields") {
+        this.render();
+      }
     });
 
     this.render();
@@ -110,6 +113,14 @@ class JSONEditor extends DataroomElement {
   }
 
   /**
+   * Check if the no-new-fields attribute is set.
+   * When set, users cannot add new rows beyond those already rendered.
+   */
+  noNewFields() {
+    return this.attrs['no-new-fields'] !== undefined;
+  }
+
+  /**
    * Render the component
    */
   render() {
@@ -122,20 +133,22 @@ class JSONEditor extends DataroomElement {
     this.create("summary", {});
     const container = this.create("div", { class: "json-editor-container" });
 
-    // If no src and no rows, show only the add button
+    // If no src and no rows, show only the add button (unless no-new-fields is set)
     if (!this.attrs.src && this.rows.length === 0) {
-      const addButton = this.create(
-        "button",
-        {
-          class: "json-editor-add-btn",
-          content: "+",
-          type: "button",
-        }, container
-      );
+      if (!this.noNewFields()) {
+        const addButton = this.create(
+          "button",
+          {
+            class: "json-editor-add-btn",
+            content: "+",
+            type: "button",
+          }, container
+        );
 
-      addButton.addEventListener("click", () => {
-        this.addRow()
-      });
+        addButton.addEventListener("click", () => {
+          this.addRow()
+        });
+      }
       return;
     }
 
@@ -153,18 +166,20 @@ class JSONEditor extends DataroomElement {
       this.renderRow(row, index, rowsContainer);
     });
 
-    const addButton = this.create(
-      "button",
-      {
-        class: "json-editor-add-btn",
-        content: "+",
-        type: "button",
-      }, container
-    );
+    if (!this.noNewFields()) {
+      const addButton = this.create(
+        "button",
+        {
+          class: "json-editor-add-btn",
+          content: "+",
+          type: "button",
+        }, container
+      );
 
-    addButton.addEventListener("click", () => {
-      this.addRow()
-    });
+      addButton.addEventListener("click", () => {
+        this.addRow()
+      });
+    }
 
   }
 
@@ -420,6 +435,9 @@ class JSONEditor extends DataroomElement {
    * Add a new row
    */
   addRow() {
+    if (this.noNewFields()) {
+      return;
+    }
     this.rows.push({
       key: "",
       type: "string",

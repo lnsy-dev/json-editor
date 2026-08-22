@@ -28,9 +28,7 @@
     --warning-color      : warning state (currently unused)
     --error-color        : delete button background, invalid state
     --neutral-color      : strong neutral accent (currently unused)
-    --bg-color           : dropdown button and menu backgrounds
-    --json-editor-menu-shadow : dropdown menu shadow (e.g. 0 4px 12px rgba(0,0,0,0.15))
-  
+
   Example:
     :root {
       --background-color: #ffffff;
@@ -39,7 +37,14 @@
       --error-color: #ff6b6b;
       --quaternary-color: #d4cfbd;
       --trinary-color: #8aa38a;
-      --bg-color: #ffffff;
-      --json-editor-menu-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 */
+
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #1a1a1a;
+      --confirmation-color: #0a5c0a;
+      --error-color: #ff6b6b;
+      --quaternary-color: #d4cfbd;
+      --trinary-color: #8aa38a;
+    }

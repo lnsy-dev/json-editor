@@ -24,11 +24,9 @@
       --warning-color: #639e71;
       --error-color: #ff6b6b;
       --neutral-color: #1c3320;
-      --bg-color: #FFF8E7;
     }
 
     body {
-      background-color: var(--bg-color);
       max-width: 60em;
       margin: auto;
     }
@@ -87,6 +85,8 @@
     
     <div>
       <button id="load-json-btn">Load Sample JSON</button>
+      <button id="load-json-no-new-fields-btn">Load Sample JSON (No New Fields)</button>
+      <button id="allow-new-fields-btn">Allow New Fields</button>
       <button id="load-yaml-btn">Load Sample YAML</button>
       <button id="load-dropdown-btn">Load Dropdown Example</button>
       <button id="get-json-btn">Get as JSON</button>
@@ -134,6 +134,19 @@ salary: 85000.75`;
     document.getElementById('load-json-btn').addEventListener('click', () => {
       const success = editor.setJSON(sampleJSON);
       output.value = success ? 'JSON loaded successfully!' : 'Failed to load JSON';
+    });
+
+    // Load sample JSON and prevent adding new fields
+    document.getElementById('load-json-no-new-fields-btn').addEventListener('click', () => {
+      const success = editor.setJSON(sampleJSON);
+      editor.setAttribute('no-new-fields', '');
+      output.value = success ? 'JSON loaded with no new fields allowed!' : 'Failed to load JSON';
+    });
+
+    // Allow adding new fields again
+    document.getElementById('allow-new-fields-btn').addEventListener('click', () => {
+      editor.removeAttribute('no-new-fields');
+      output.value = 'New fields are now allowed.';
     });
 
     // Load sample YAML

@@ -169,6 +169,16 @@ editor.setJSON(schema);
 
 `optionsUrl` points to a JSON endpoint that returns either an array of strings or an array of `{ value, label }` objects. The endpoint URL is stored in the schema and is not shown in the editor UI.
 
+### Preventing new fields
+
+Add the `no-new-fields` attribute to hide the add button and prevent users from creating new fields:
+
+```html
+<json-editor src="path/to/data.json" no-new-fields></json-editor>
+```
+
+When this attribute is present, the editor renders only the fields it was initialized with. Existing rows remain editable, but no new rows can be added through the UI or by calling `addRow()` programmatically.
+
 ### Events
 
 The editor emits a `JSON-UPDATED` event whenever data changes:
