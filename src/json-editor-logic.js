@@ -29,6 +29,9 @@ export function detectType(value) {
     if (['latitude', 'longitude', 'altitude'].every((k) => keys.includes(k))) {
       return 'location';
     }
+    if (['x', 'y', 'z'].every((k) => keys.includes(k))) {
+      return '3d coordinates';
+    }
     return 'json';
   }
   if (typeof value === 'number') {
@@ -122,6 +125,31 @@ export function parseValue(value, type) {
         };
       }
       return { latitude: '0.00', longitude: '0.00', altitude: '0.00' };
+    case '3d coordinates':
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (trimmed === '') {
+          return { x: '0.00', y: '0.00', z: '0.00' };
+        }
+        try {
+          const obj = JSON.parse(value);
+          return {
+            x: String(obj?.x ?? '0.00'),
+            y: String(obj?.y ?? '0.00'),
+            z: String(obj?.z ?? '0.00'),
+          };
+        } catch {
+          return { x: '0.00', y: '0.00', z: '0.00' };
+        }
+      }
+      if (typeof value === 'object' && value !== null) {
+        return {
+          x: String(value.x ?? '0.00'),
+          y: String(value.y ?? '0.00'),
+          z: String(value.z ?? '0.00'),
+        };
+      }
+      return { x: '0.00', y: '0.00', z: '0.00' };
     case 'json':
       if (typeof value === 'string') {
         try {
@@ -201,6 +229,17 @@ export function validateValue(value, type) {
       } catch {
         return false;
       }
+    case '3d coordinates':
+      try {
+        const obj = typeof value === 'string' ? JSON.parse(value) : value;
+        if (!obj || typeof obj !== 'object') return false;
+        const hasKeys = ['x', 'y', 'z'].every((k) => Object.prototype.hasOwnProperty.call(obj, k));
+        if (!hasKeys) return false;
+        const vals = [obj.x, obj.y, obj.z];
+        return vals.every((v) => v === '' || v === null || v === undefined || !isNaN(parseFloat(v)));
+      } catch {
+        return false;
+      }
     case 'json':
       try {
         if (typeof value === 'string') {
@@ -242,6 +281,7 @@ export function formatValueForInput(value, type) {
       return Array.isArray(value) ? value.join(', ') : value;
     case 'location':
     case 'json':
+    case '3d coordinates':
       return typeof value === 'object'
         ? JSON.stringify(value, null, 2)
         : value;

@@ -169,15 +169,25 @@ editor.setJSON(schema);
 
 `optionsUrl` points to a JSON endpoint that returns either an array of strings or an array of `{ value, label }` objects. The endpoint URL is stored in the schema and is not shown in the editor UI.
 
-### Preventing new fields
+### View modes
 
-Add the `no-new-fields` attribute to hide the add button and prevent users from creating new fields:
+The editor supports two view modes via boolean attributes.
+
+#### Interact-only
+
+Add the `interact-only` attribute to hide the add and delete buttons. Existing rows remain editable, but users cannot add or remove rows:
 
 ```html
-<json-editor src="path/to/data.json" no-new-fields></json-editor>
+<json-editor src="path/to/data.json" interact-only></json-editor>
 ```
 
-When this attribute is present, the editor renders only the fields it was initialized with. Existing rows remain editable, but no new rows can be added through the UI or by calling `addRow()` programmatically.
+#### Read-only
+
+Add the `read-only` attribute to disable all interaction. The editor displays the current data without allowing edits, type changes, or row additions/deletions:
+
+```html
+<json-editor src="path/to/data.json" read-only></json-editor>
+```
 
 ### Events
 

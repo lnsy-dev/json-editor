@@ -24,6 +24,7 @@ class JSONEntryDropdown extends DataroomElement {
       { value: "url", iconKey: "link", label: "URL" },
       { value: "dropdown", iconKey: "dropdown", label: "Dropdown" },
       { value: "location", iconKey: "globe", label: "Location" },
+      { value: "3d coordinates", iconKey: "3d", label: "3D Coordinates" },
       { value: "json", iconKey: "json", label: "JSON" },
       { value: "currency", iconKey: "currency", label: "currency" },
       { value: "boolean", iconKey: "checkbox", label: "Boolean" },
@@ -38,8 +39,11 @@ class JSONEntryDropdown extends DataroomElement {
 
     this.menu = this.create("div", { class: "jed-menu" }, this.root);
 
+    this.setDisabled(this.attrs.disabled !== undefined);
+
     this.button.addEventListener("click", (e) => {
       e.stopPropagation();
+      if (this.disabled) return;
       this.toggleMenu();
     });
 
@@ -52,6 +56,9 @@ class JSONEntryDropdown extends DataroomElement {
     this.on("NODE-CHANGED", (data) => {
       if (data.attribute === "value") {
         this.setValue(data.newValue);
+      }
+      if (data.attribute === "disabled") {
+        this.setDisabled(data.newValue !== undefined && data.newValue !== null);
       }
     });
   }
@@ -91,6 +98,16 @@ class JSONEntryDropdown extends DataroomElement {
     this.renderMenu();
     // Emit event
     this.event("TYPE-CHANGED", { value: this.value });
+  }
+
+  setDisabled(disabled) {
+    this.disabled = disabled;
+    if (disabled) {
+      this.button.setAttribute("disabled", "");
+      this.closeMenu();
+    } else {
+      this.button.removeAttribute("disabled");
+    }
   }
 
   toggleMenu() {

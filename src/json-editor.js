@@ -42,7 +42,7 @@ class JSONEditor extends DataroomElement {
       if (data.attribute === "src" && data.newValue) {
         this.loadJSON(data.newValue);
       }
-      if (data.attribute === "no-new-fields") {
+      if (data.attribute === "interact-only" || data.attribute === "read-only") {
         this.render();
       }
     });
@@ -113,11 +113,40 @@ class JSONEditor extends DataroomElement {
   }
 
   /**
-   * Check if the no-new-fields attribute is set.
-   * When set, users cannot add new rows beyond those already rendered.
+   * Check if the interact-only attribute is set.
+   * When set, users can edit existing rows but cannot add or delete rows.
    */
-  noNewFields() {
-    return this.attrs['no-new-fields'] !== undefined;
+  interactOnly() {
+    return this.attrs['interact-only'] !== undefined;
+  }
+
+  /**
+   * Check if the read-only attribute is set.
+   * When set, no interaction is allowed; the editor only displays information.
+   */
+  readOnly() {
+    return this.attrs['read-only'] !== undefined;
+  }
+
+  /**
+   * Determine whether the add button should be shown.
+   */
+  canAddRows() {
+    return !this.interactOnly() && !this.readOnly();
+  }
+
+  /**
+   * Determine whether delete buttons should be shown.
+   */
+  canDeleteRows() {
+    return !this.interactOnly() && !this.readOnly();
+  }
+
+  /**
+   * Return an attributes object that disables an element when read-only.
+   */
+  readOnlyAttr() {
+    return this.readOnly() ? { disabled: "" } : {};
   }
 
   /**
@@ -133,9 +162,9 @@ class JSONEditor extends DataroomElement {
     this.create("summary", {});
     const container = this.create("div", { class: "json-editor-container" });
 
-    // If no src and no rows, show only the add button (unless no-new-fields is set)
+    // If no src and no rows, show only the add button (when allowed)
     if (!this.attrs.src && this.rows.length === 0) {
-      if (!this.noNewFields()) {
+      if (this.canAddRows()) {
         const addButton = this.create(
           "button",
           {
@@ -166,7 +195,7 @@ class JSONEditor extends DataroomElement {
       this.renderRow(row, index, rowsContainer);
     });
 
-    if (!this.noNewFields()) {
+    if (this.canAddRows()) {
       const addButton = this.create(
         "button",
         {
@@ -207,7 +236,9 @@ class JSONEditor extends DataroomElement {
     const typeDropdown = this.create(
       "json-entry-dropdown",
       {
+        class: "json-editor-type",
         value: row.type,
+        ...this.readOnlyAttr(),
       },
       rowElement,
     );
@@ -242,6 +273,7 @@ class JSONEditor extends DataroomElement {
         class: "json-editor-key",
         placeholder: "Key",
         value: row.key || "",
+        ...this.readOnlyAttr(),
       },
       rowElement,
     );
@@ -262,6 +294,7 @@ class JSONEditor extends DataroomElement {
         {
           type: 'checkbox',
           class: 'json-editor-value',
+          ...this.readOnlyAttr(),
         },
         rowElement
       );
@@ -273,23 +306,103 @@ class JSONEditor extends DataroomElement {
     } else if (row.type === "dropdown") {
       valueInput = this.create(
         "select",
-        { class: "json-editor-value json-editor-dropdown-select" },
+        {
+          class: "json-editor-value json-editor-dropdown-select",
+          ...this.readOnlyAttr(),
+        },
         rowElement,
       );
 
       await this.populateDropdownOptions(valueInput, row.optionsUrl);
       valueInput.value = this.formatValueForInput(row.value, row.type) || "";
-    } else if (row.type === "location") {
+    } else if (row.type === "location" || row.type === "3d coordinates") {
+      const isLocation = row.type === "location";
+      const fields = isLocation
+        ? ["latitude", "longitude", "altitude"]
+        : ["x", "y", "z"];
+      const placeholders = isLocation
+        ? ["Latitude", "Longitude", "Altitude"]
+        : ["X", "Y", "Z"];
+
       valueInput = this.create(
-        "textarea",
+        "div",
         {
-          class: "json-editor-value json-editor-textarea",
-          placeholder: '{"latitude":"0.00","longitude":"0.00","altitude":"0.00"}',
-          rows: 1,
+          class: `json-editor-value json-editor-coordinates json-editor-${isLocation ? "location" : "3d-coordinates"}`,
         },
         rowElement,
       );
-      valueInput.value = this.formatValueForInput(row.value, row.type);
+
+      const currentValue = parseValue(row.value, row.type);
+      const fieldInputs = {};
+
+      fields.forEach((field) => {
+        const input = this.create(
+          "input",
+          {
+            type: "number",
+            class: `json-editor-coordinate json-editor-coordinate-${field}`,
+            placeholder: placeholders[fields.indexOf(field)],
+            value: currentValue[field] || "",
+            ...this.readOnlyAttr(),
+          },
+          valueInput,
+        );
+        fieldInputs[field] = input;
+
+        input.addEventListener("change", () => {
+          const newValue = {};
+          fields.forEach((f) => {
+            newValue[f] = fieldInputs[f].value;
+          });
+          this.rows[index].value = newValue;
+          this.handleDataChange();
+
+          const isValid = this.validateValue(newValue, row.type);
+          Object.values(fieldInputs).forEach((fieldInput) => {
+            if (isValid) {
+              fieldInput.classList.remove("json-editor-invalid");
+              fieldInput.removeAttribute("title");
+            } else {
+              fieldInput.classList.add("json-editor-invalid");
+              fieldInput.setAttribute(
+                "title",
+                `Invalid ${row.type} value`,
+              );
+            }
+          });
+
+          if (isValid) {
+            validationIndicator.classList.remove("invalid");
+            validationIndicator.classList.add("valid");
+            validationIndicator.textContent = "✓";
+            validationIndicator.setAttribute("title", "Valid");
+          } else {
+            validationIndicator.classList.remove("valid");
+            validationIndicator.classList.add("invalid");
+            validationIndicator.textContent = "✗";
+            validationIndicator.setAttribute(
+              "title",
+              `Invalid ${row.type} value`,
+            );
+          }
+        });
+      });
+
+      // Initial validation check for coordinate rows
+      const isValid = this.validateValue(row.value, row.type);
+      if (!isValid) {
+        Object.values(fieldInputs).forEach((fieldInput) => {
+          fieldInput.classList.add("json-editor-invalid");
+          fieldInput.setAttribute("title", `Invalid ${row.type} value`);
+        });
+        validationIndicator.classList.remove("valid");
+        validationIndicator.classList.add("invalid");
+        validationIndicator.textContent = "✗";
+        validationIndicator.setAttribute("title", `Invalid ${row.type} value`);
+      } else {
+        validationIndicator.classList.add("valid");
+        validationIndicator.textContent = "✓";
+      }
     } else if (row.type === "json") {
       valueInput = this.create(
         "textarea",
@@ -297,6 +410,7 @@ class JSONEditor extends DataroomElement {
           class: "json-editor-value json-editor-textarea",
           placeholder: "JSON value",
           rows: 1,
+          ...this.readOnlyAttr(),
         },
         rowElement,
       );
@@ -308,6 +422,7 @@ class JSONEditor extends DataroomElement {
           type: "datetime-local",
           class: "json-editor-value",
           value: this.formatValueForInput(row.value, row.type) || "",
+          ...this.readOnlyAttr(),
         },
         rowElement,
       );
@@ -318,6 +433,7 @@ class JSONEditor extends DataroomElement {
           type: "date",
           class: "json-editor-value",
           value: this.formatValueForInput(row.value, row.type),
+          ...this.readOnlyAttr(),
         },
         rowElement,
       );
@@ -330,6 +446,7 @@ class JSONEditor extends DataroomElement {
           placeholder: row.type === "currency" ? "0.00" : (row.type === "integer" ? "0" : "Number"),
           step: row.type === "currency" ? "0.01" : (row.type === "integer" ? "1" : "any"),
           value: this.formatValueForInput(row.value, row.type),
+          ...this.readOnlyAttr(),
         },
         rowElement,
       );
@@ -341,6 +458,7 @@ class JSONEditor extends DataroomElement {
           class: "json-editor-value",
           placeholder: "https://example.com",
           value: this.formatValueForInput(row.value, row.type) || "",
+          ...this.readOnlyAttr(),
         },
         rowElement,
       );
@@ -357,12 +475,16 @@ class JSONEditor extends DataroomElement {
                 ? "tag1, tag2, tag3"
                 : "Value",
           value: this.formatValueForInput(row.value, row.type),
+          ...this.readOnlyAttr(),
         },
         rowElement,
       );
     }
 
-    if (row.type !== 'boolean') {
+    if (row.type === 'boolean') {
+      validationIndicator.classList.add("valid");
+      validationIndicator.textContent = "✓";
+    } else if (row.type !== 'location' && row.type !== '3d coordinates') {
       valueInput.addEventListener("change", (e) => {
         this.rows[index].value = e.target.value;
         this.handleDataChange();
@@ -407,35 +529,34 @@ class JSONEditor extends DataroomElement {
         validationIndicator.classList.add("valid");
         validationIndicator.textContent = "✓";
       }
-    } else {
-      validationIndicator.classList.add("valid");
-      validationIndicator.textContent = "✓";
     }
 
     // Delete button
-    const deleteButton = this.create(
-      "button",
-      {
-        class: "json-editor-delete-btn",
-        content: "×",
-        type: "button",
-        title: "Delete row",
-      },
-      rowElement,
-    );
+    if (this.canDeleteRows()) {
+      const deleteButton = this.create(
+        "button",
+        {
+          class: "json-editor-delete-btn",
+          content: "×",
+          type: "button",
+          title: "Delete row",
+        },
+        rowElement,
+      );
 
-    deleteButton.addEventListener("click", () => {
-      this.rows.splice(index, 1);
-      this.handleDataChange();
-      this.render();
-    });
+      deleteButton.addEventListener("click", () => {
+        this.rows.splice(index, 1);
+        this.handleDataChange();
+        this.render();
+      });
+    }
   }
 
   /**
    * Add a new row
    */
   addRow() {
-    if (this.noNewFields()) {
+    if (!this.canAddRows()) {
       return;
     }
     this.rows.push({

@@ -85,10 +85,12 @@
     
     <div>
       <button id="load-json-btn">Load Sample JSON</button>
-      <button id="load-json-no-new-fields-btn">Load Sample JSON (No New Fields)</button>
-      <button id="allow-new-fields-btn">Allow New Fields</button>
+      <button id="load-json-interact-only-btn">Load Sample JSON (Interact-Only)</button>
+      <button id="load-json-read-only-btn">Load Sample JSON (Read-Only)</button>
+      <button id="allow-editing-btn">Allow Editing</button>
       <button id="load-yaml-btn">Load Sample YAML</button>
       <button id="load-dropdown-btn">Load Dropdown Example</button>
+      <button id="load-coordinates-btn">Load Coordinates Example</button>
       <button id="get-json-btn">Get as JSON</button>
       <button id="get-json-schema-btn">Get as JSON with Schema</button>
       <button id="get-yaml-btn">Get as YAML</button>
@@ -130,23 +132,40 @@ salary: 85000.75`;
   { "key": "status", "type": "dropdown", "value": "active", "optionsUrl": "examples/dropdown-options.json" }
 ]`;
 
+    // Coordinates example JSON
+    const coordinatesJSON = `{
+  "origin": { "x": 0, "y": 0, "z": 0 },
+  "sensor": { "x": 12.5, "y": -3.25, "z": 7.8 },
+  "gps": { "latitude": 40.7128, "longitude": -74.006, "altitude": 10 }
+}`;
+
     // Load sample JSON
     document.getElementById('load-json-btn').addEventListener('click', () => {
       const success = editor.setJSON(sampleJSON);
       output.value = success ? 'JSON loaded successfully!' : 'Failed to load JSON';
     });
 
-    // Load sample JSON and prevent adding new fields
-    document.getElementById('load-json-no-new-fields-btn').addEventListener('click', () => {
+    // Load sample JSON in interact-only mode (no add/delete)
+    document.getElementById('load-json-interact-only-btn').addEventListener('click', () => {
       const success = editor.setJSON(sampleJSON);
-      editor.setAttribute('no-new-fields', '');
-      output.value = success ? 'JSON loaded with no new fields allowed!' : 'Failed to load JSON';
+      editor.removeAttribute('read-only');
+      editor.setAttribute('interact-only', '');
+      output.value = success ? 'JSON loaded in interact-only mode!' : 'Failed to load JSON';
     });
 
-    // Allow adding new fields again
-    document.getElementById('allow-new-fields-btn').addEventListener('click', () => {
-      editor.removeAttribute('no-new-fields');
-      output.value = 'New fields are now allowed.';
+    // Load sample JSON in read-only mode (no interaction)
+    document.getElementById('load-json-read-only-btn').addEventListener('click', () => {
+      const success = editor.setJSON(sampleJSON);
+      editor.removeAttribute('interact-only');
+      editor.setAttribute('read-only', '');
+      output.value = success ? 'JSON loaded in read-only mode!' : 'Failed to load JSON';
+    });
+
+    // Allow full editing again
+    document.getElementById('allow-editing-btn').addEventListener('click', () => {
+      editor.removeAttribute('interact-only');
+      editor.removeAttribute('read-only');
+      output.value = 'Full editing is now allowed.';
     });
 
     // Load sample YAML
@@ -159,6 +178,12 @@ salary: 85000.75`;
     document.getElementById('load-dropdown-btn').addEventListener('click', () => {
       const success = editor.setJSON(dropdownJSON);
       output.value = success ? 'Dropdown example loaded successfully!' : 'Failed to load dropdown example';
+    });
+
+    // Load coordinates example
+    document.getElementById('load-coordinates-btn').addEventListener('click', () => {
+      const success = editor.setJSON(coordinatesJSON);
+      output.value = success ? 'Coordinates example loaded successfully!' : 'Failed to load coordinates example';
     });
 
     // Get current data as JSON

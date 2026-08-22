@@ -1,6 +1,11 @@
+json-editor {
+  display: block;
+}
+
 .json-editor-container {
   padding: 1rem;
   min-width: 100%;
+  box-sizing: border-box;
   text-align: right;
 }
 
@@ -70,6 +75,12 @@
   text-align: center;
 }
 
+json-entry-dropdown.json-editor-type {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
 .json-editor-key:focus,
 .json-editor-type:focus,
 .json-editor-value:focus {
@@ -109,6 +120,37 @@
   font-family: monospace;
 }
 
+.json-editor-coordinates {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  container-type: inline-size;
+}
+
+.json-editor-coordinates .json-editor-coordinate {
+  width: 100%;
+  min-width: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--quaternary-color, currentColor);
+  background: var(--background-color, transparent);
+  color: var(--foreground-color, currentColor);
+  box-sizing: border-box;
+}
+
+.json-editor-coordinates .json-editor-coordinate:focus {
+  outline: 2px solid var(--trinary-color, currentColor);
+  outline-offset: 1px;
+}
+
+@container (max-width: 8em) {
+  .json-editor-coordinates {
+    grid-template-columns: 1fr;
+  }
+}
+
 .json-editor-dropdown-select {
   padding: 0.5rem;
   border: 1px solid var(--quaternary-color, currentColor);
@@ -140,12 +182,17 @@
 
 @media (max-width: 768px) {
   .json-editor-row {
-    grid-template-columns: 20px 1fr;
+    grid-template-columns: 20px 60px 1fr auto;
     grid-template-areas:
-      "indicator key"
-      ". type"
-      ". value"
-      ". delete";
+      "indicator type key key"
+      ". value value value"
+      ". delete delete delete";
+  }
+
+  .json-editor-row:has(.json-editor-coordinates) {
+    grid-template-areas:
+      "indicator type key key"
+      ". value value delete";
   }
 
   .json-editor-validation-indicator {
@@ -166,7 +213,12 @@
 
   .json-editor-delete-btn {
     grid-area: delete;
-    width: 100%;
+    width: 2em;
+    justify-self: start;
+  }
+
+  .json-editor-row:has(.json-editor-coordinates) .json-editor-delete-btn {
+    justify-self: end;
   }
 }
 

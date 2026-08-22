@@ -45,6 +45,10 @@ describe('json-editor-logic', () => {
       expect(detectType({ latitude: 1, longitude: 2, altitude: 3 })).toBe('location');
     });
 
+    it('detects 3d coordinate objects', () => {
+      expect(detectType({ x: 1, y: 2, z: 3 })).toBe('3d coordinates');
+    });
+
     it('detects generic json objects', () => {
       expect(detectType({ foo: 'bar' })).toBe('json');
     });
@@ -159,6 +163,29 @@ describe('json-editor-logic', () => {
       });
     });
 
+    it('parses 3d coordinate values', () => {
+      expect(parseValue('', '3d coordinates')).toEqual({
+        x: '0.00',
+        y: '0.00',
+        z: '0.00',
+      });
+      expect(parseValue('{"x":1.5,"y":2.5,"z":3.5}', '3d coordinates')).toEqual({
+        x: '1.5',
+        y: '2.5',
+        z: '3.5',
+      });
+      expect(parseValue({ x: 1, y: 2 }, '3d coordinates')).toEqual({
+        x: '1',
+        y: '2',
+        z: '0.00',
+      });
+      expect(parseValue('invalid json', '3d coordinates')).toEqual({
+        x: '0.00',
+        y: '0.00',
+        z: '0.00',
+      });
+    });
+
     it('parses json values', () => {
       expect(parseValue('{"foo":"bar"}', 'json')).toEqual({ foo: 'bar' });
       expect(parseValue('invalid', 'json')).toEqual({});
@@ -226,6 +253,12 @@ describe('json-editor-logic', () => {
       expect(validateValue('not json', 'location')).toBe(false);
     });
 
+    it('validates 3d coordinates type', () => {
+      expect(validateValue('{"x":1,"y":2,"z":3}', '3d coordinates')).toBe(true);
+      expect(validateValue('{"x":1,"y":2}', '3d coordinates')).toBe(false);
+      expect(validateValue('not json', '3d coordinates')).toBe(false);
+    });
+
     it('validates json type', () => {
       expect(validateValue('{"foo":"bar"}', 'json')).toBe(true);
       expect(validateValue('not json', 'json')).toBe(false);
@@ -261,6 +294,7 @@ describe('json-editor-logic', () => {
       const obj = { foo: 'bar' };
       expect(formatValueForInput(obj, 'json')).toBe(JSON.stringify(obj, null, 2));
       expect(formatValueForInput(obj, 'location')).toBe(JSON.stringify(obj, null, 2));
+      expect(formatValueForInput(obj, '3d coordinates')).toBe(JSON.stringify(obj, null, 2));
     });
 
     it('formats currency to two decimal places', () => {

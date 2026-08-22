@@ -124,19 +124,19 @@ test.describe('Feature: Edit JSON', () => {
   });
 });
 
-test.describe('Feature: Prevent new fields', () => {
+test.describe('Feature: View modes', () => {
   const sampleJSON = JSON.stringify({
     name: 'John Doe',
     age: 30,
   });
 
-  test('Scenario: no-new-fields hides the add button', async ({ page }) => {
-    await test.step('Given the editor has loaded JSON and the no-new-fields attribute', async () => {
+  test('Scenario: interact-only hides the add and delete buttons', async ({ page }) => {
+    await test.step('Given the editor has loaded JSON and the interact-only attribute', async () => {
       await page.goto('/');
       await page.evaluate((json) => {
         const editor = document.querySelector('json-editor');
         editor.setJSON(json);
-        editor.setAttribute('no-new-fields', '');
+        editor.setAttribute('interact-only', '');
       }, sampleJSON);
     });
 
@@ -150,15 +150,77 @@ test.describe('Feature: Prevent new fields', () => {
       const addButton = page.locator('json-editor .json-editor-add-btn');
       await expect(addButton).toHaveCount(0);
     });
+
+    await test.step('And the delete buttons are hidden', async () => {
+      const deleteButtons = page.locator('json-editor .json-editor-delete-btn');
+      await expect(deleteButtons).toHaveCount(0);
+    });
   });
 
-  test('Scenario: no-new-fields prevents programmatically adding rows', async ({ page }) => {
-    await test.step('Given the editor has loaded JSON and the no-new-fields attribute', async () => {
+  test('Scenario: interact-only prevents programmatically adding rows', async ({ page }) => {
+    await test.step('Given the editor has loaded JSON and the interact-only attribute', async () => {
       await page.goto('/');
       await page.evaluate((json) => {
         const editor = document.querySelector('json-editor');
         editor.setJSON(json);
-        editor.setAttribute('no-new-fields', '');
+        editor.setAttribute('interact-only', '');
+      }, sampleJSON);
+    });
+
+    await test.step('When addRow is called programmatically', async () => {
+      await page.evaluate(() => {
+        const editor = document.querySelector('json-editor');
+        editor.addRow();
+      });
+    });
+
+    await test.step('Then no new row is added', async () => {
+      const rows = page.locator('json-editor .json-editor-row');
+      await expect(rows).toHaveCount(2);
+    });
+  });
+
+  test('Scenario: read-only hides add/delete buttons and disables inputs', async ({ page }) => {
+    await test.step('Given the editor has loaded JSON and the read-only attribute', async () => {
+      await page.goto('/');
+      await page.evaluate((json) => {
+        const editor = document.querySelector('json-editor');
+        editor.setJSON(json);
+        editor.setAttribute('read-only', '');
+      }, sampleJSON);
+    });
+
+    await test.step('Then the existing rows are still visible', async () => {
+      const rows = page.locator('json-editor .json-editor-row');
+      await expect(rows).toHaveCount(2);
+      await expect(rows.first().locator('.json-editor-key')).toHaveValue('name');
+    });
+
+    await test.step('And the add button is hidden', async () => {
+      const addButton = page.locator('json-editor .json-editor-add-btn');
+      await expect(addButton).toHaveCount(0);
+    });
+
+    await test.step('And the delete buttons are hidden', async () => {
+      const deleteButtons = page.locator('json-editor .json-editor-delete-btn');
+      await expect(deleteButtons).toHaveCount(0);
+    });
+
+    await test.step('And the inputs are disabled', async () => {
+      const rows = page.locator('json-editor .json-editor-row');
+      await expect(rows.first().locator('.json-editor-key')).toBeDisabled();
+      await expect(rows.first().locator('.json-editor-value')).toBeDisabled();
+      await expect(rows.first().locator('json-entry-dropdown .jed-button')).toBeDisabled();
+    });
+  });
+
+  test('Scenario: read-only prevents programmatically adding rows', async ({ page }) => {
+    await test.step('Given the editor has loaded JSON and the read-only attribute', async () => {
+      await page.goto('/');
+      await page.evaluate((json) => {
+        const editor = document.querySelector('json-editor');
+        editor.setJSON(json);
+        editor.setAttribute('read-only', '');
       }, sampleJSON);
     });
 
