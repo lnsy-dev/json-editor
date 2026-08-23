@@ -13,6 +13,7 @@ import {
   parseValue,
   validateValue,
   formatValueForInput,
+  sliceCurrencyDigits,
   convertJSONToRows,
   convertRowsToJSON,
 } from '../../src/json-editor-logic.js';
@@ -123,6 +124,14 @@ describe('json-editor-logic', () => {
     it('parses currency values', () => {
       expect(parseValue('99.99', 'currency')).toBe(99.99);
       expect(parseValue('abc', 'currency')).toBe(0);
+    });
+
+    it('slices currency values to two decimal places', () => {
+      expect(parseValue('19.999', 'currency')).toBe(19.99);
+      expect(parseValue('19.9999999', 'currency')).toBe(19.99);
+      expect(parseValue(123.456, 'currency')).toBe(123.45);
+      expect(parseValue(-5.678, 'currency')).toBe(-5.67);
+      expect(parseValue(10, 'currency')).toBe(10);
     });
 
     it('parses array of strings from comma-separated string', () => {
@@ -300,6 +309,19 @@ describe('json-editor-logic', () => {
     it('formats currency to two decimal places', () => {
       expect(formatValueForInput(99.9, 'currency')).toBe('99.90');
       expect(formatValueForInput('99.9', 'currency')).toBe('99.9');
+    });
+
+    it('slices currency digits instead of rounding', () => {
+      expect(sliceCurrencyDigits(19.999)).toBe(19.99);
+      expect(sliceCurrencyDigits(4.35)).toBe(4.35);
+      expect(sliceCurrencyDigits('0.009')).toBe(0);
+      expect(sliceCurrencyDigits(-1.569)).toBe(-1.56);
+      expect(sliceCurrencyDigits(42)).toBe(42);
+      expect(sliceCurrencyDigits('abc')).toBe(0);
+    });
+
+    it('formats sliced currency with padded decimals', () => {
+      expect(formatValueForInput(sliceCurrencyDigits(19.999), 'currency')).toBe('19.99');
     });
 
     it('formats integer to zero decimal places', () => {

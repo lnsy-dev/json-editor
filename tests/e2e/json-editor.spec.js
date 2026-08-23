@@ -224,6 +224,32 @@ test.describe('JSON Editor', () => {
     expect(consoleErrors).toHaveLength(0);
   });
 
+  test('slices currency input to two decimal places', async ({ page }) => {
+    const currencySchemaJSON = JSON.stringify([
+      { key: 'price', type: 'currency', value: 0 },
+    ]);
+
+    await page.evaluate((json) => {
+      const editor = document.querySelector('json-editor');
+      editor.setJSON(json);
+    }, currencySchemaJSON);
+
+    const row = page.locator('json-editor .json-editor-row').first();
+    const valueInput = row.locator('.json-editor-value');
+
+    await valueInput.fill('19.999');
+    await valueInput.blur();
+
+    // The displayed value is sliced (not rounded) to two decimal places
+    await expect(valueInput).toHaveValue('19.99');
+
+    const exported = await page.evaluate(() => {
+      const editor = document.querySelector('json-editor');
+      return editor.getJSON();
+    });
+    expect(JSON.parse(exported)).toEqual({ price: 19.99 });
+  });
+
   test('loads dropdown example and exports selected value', async ({ page }) => {
     const dropdownSchemaJSON = JSON.stringify([
       { key: 'name', type: 'string', value: 'Task' },

@@ -64,6 +64,21 @@ export function detectType(value) {
 }
 
 /**
+ * Slice a numeric value to at most two decimal places (truncation, not
+ * rounding) to enforce currency standards.
+ *
+ * @param {*} value - The value to slice
+ * @returns {number} - The value with at most two decimal digits
+ */
+export function sliceCurrencyDigits(value) {
+  const num = typeof value === 'number' ? value : parseFloat(value);
+  if (Number.isNaN(num) || !Number.isFinite(num)) return 0.0;
+  const [intPart, decPart = ''] = num.toString().split('.');
+  if (decPart.length <= 2) return num;
+  return parseFloat(`${intPart}.${decPart.slice(0, 2)}`);
+}
+
+/**
  * Parse a raw value into the representation used by a given type.
  *
  * @param {*} value - The raw value
@@ -81,7 +96,7 @@ export function parseValue(value, type) {
     case 'integer':
       return parseInt(value, 10) || 0;
     case 'currency':
-      return parseFloat(value) || 0.0;
+      return sliceCurrencyDigits(parseFloat(value) || 0.0);
     case 'array of strings':
       if (typeof value === 'string') {
         return value
@@ -300,7 +315,9 @@ export function formatValueForInput(value, type) {
         ? JSON.stringify(value, null, 2)
         : value;
     case 'currency':
-      return typeof value === 'number' ? value.toFixed(2) : value;
+      return typeof value === 'number'
+        ? sliceCurrencyDigits(value).toFixed(2)
+        : value;
     case 'float':
       return typeof value === 'number' ? value : value;
     case 'integer':

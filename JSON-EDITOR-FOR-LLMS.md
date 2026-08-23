@@ -133,7 +133,7 @@ The editor auto-detects and validates these types:
 | **string** | Text values | text | Always valid |
 | **number** | Numeric values | number | Must be valid number |
 | **boolean** | True/false | checkbox | Always valid |
-| **currency** | Decimal with 2 places | number (step=0.01) | Must be valid number |
+| **currency** | Decimal sliced to 2 places (truncated, not rounded) | number (step=0.01) | Must be valid number |
 | **date** | Date only (YYYY-MM-DD) | date | Must be valid date |
 | **datetime** | Date and time | datetime-local | Must be valid datetime |
 | **url** | Web URLs | url | Must be valid URL |

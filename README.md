@@ -120,7 +120,7 @@ The JSON editor provides a row-based interface where each row represents a key-v
 - **string** - Text values
 - **number** - Numeric values
 - **boolean** - True/false checkbox
-- **currency** - Decimal values with 2 decimal places
+- **currency** - Decimal values sliced to 2 decimal places (extra digits are truncated, not rounded)
 - **date** - Date picker (YYYY-MM-DD)
 - **datetime** - Date and time picker
 - **url** - URL with validation

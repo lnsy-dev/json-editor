@@ -515,7 +515,14 @@ class JSONEditor extends DataroomElement {
       validationIndicator.setAttribute("title", "Valid");
     } else if (row.type !== 'location' && row.type !== '3d coordinates') {
       valueInput.addEventListener("change", (e) => {
-        this.rows[index].value = e.target.value;
+        // Enforce currency standards: slice digits to two decimal places
+        if (this.rows[index].type === "currency") {
+          const sliced = this.parseValue(e.target.value, "currency");
+          e.target.value = this.formatValueForInput(sliced, "currency");
+          this.rows[index].value = sliced;
+        } else {
+          this.rows[index].value = e.target.value;
+        }
         this.handleDataChange();
 
         // Validate and update visual indicator
