@@ -43,7 +43,11 @@ class JSONEditor extends DataroomElement {
       if (data.attribute === "src" && data.newValue) {
         this.loadJSON(data.newValue);
       }
-      if (data.attribute === "interact-only" || data.attribute === "read-only") {
+      if (
+        data.attribute === "interact-only" ||
+        data.attribute === "read-only" ||
+        data.attribute === "form-mode"
+      ) {
         this.render();
       }
     });
@@ -137,17 +141,26 @@ class JSONEditor extends DataroomElement {
   }
 
   /**
+   * Check if the form-mode attribute is set.
+   * When set, the editor renders as a simple form: just keys and inputs,
+   * no type dropdowns, no add/delete buttons. Users can tab between inputs.
+   */
+  formMode() {
+    return this.hasAttribute('form-mode');
+  }
+
+  /**
    * Determine whether the add button should be shown.
    */
   canAddRows() {
-    return !this.interactOnly() && !this.readOnly();
+    return !this.formMode() && !this.interactOnly() && !this.readOnly();
   }
 
   /**
    * Determine whether delete buttons should be shown.
    */
   canDeleteRows() {
-    return !this.interactOnly() && !this.readOnly();
+    return !this.formMode() && !this.interactOnly() && !this.readOnly();
   }
 
   /**
@@ -194,7 +207,11 @@ class JSONEditor extends DataroomElement {
     // Create rows container
     const rowsContainer = this.create(
       "div",
-      { class: "json-editor-rows" },
+      {
+        class: this.formMode()
+          ? "json-editor-rows json-editor-form-mode"
+          : "json-editor-rows",
+      },
       container,
     );
 
@@ -240,21 +257,22 @@ class JSONEditor extends DataroomElement {
       rowElement,
     );
 
-    // Type dropdown with SVG icons
-    const typeDropdown = this.create(
-      "json-entry-dropdown",
-      {
-        class: "json-editor-type",
-        value: row.type,
-        ...this.readOnlyAttr(),
-      },
-      rowElement,
-    );
+    // Type dropdown with SVG icons (hidden entirely in form mode)
+    if (!this.formMode()) {
+      const typeDropdown = this.create(
+        "json-entry-dropdown",
+        {
+          class: "json-editor-type",
+          value: row.type,
+          ...this.readOnlyAttr(),
+        },
+        rowElement,
+      );
 
-    typeDropdown.addEventListener("TYPE-CHANGED", (e) => {
-      const newType = e.detail.value;
-      const oldType = this.rows[index].type;
-      this.rows[index].type = newType;
+      typeDropdown.addEventListener("TYPE-CHANGED", (e) => {
+        const newType = e.detail.value;
+        const oldType = this.rows[index].type;
+        this.rows[index].type = newType;
 
       // Try to convert the value to the new type
       const currentValue = this.rows[index].value;
@@ -271,7 +289,8 @@ class JSONEditor extends DataroomElement {
       this.handleDataChange();
       // Re-render to update input type if needed
       this.render();
-    });
+      });
+    }
 
     // Key input
     const keyInput = this.create(

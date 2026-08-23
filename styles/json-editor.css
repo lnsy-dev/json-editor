@@ -180,6 +180,15 @@ json-entry-dropdown.json-editor-type {
   opacity: 0.9;
 }
 
+/* Form mode: just keys and themed inputs, no chrome */
+.json-editor-rows.json-editor-form-mode .json-editor-row {
+  grid-template-columns: 1fr 2fr;
+}
+
+.json-editor-rows.json-editor-form-mode .json-editor-validation-indicator {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .json-editor-row {
     grid-template-columns: 20px 60px 1fr auto;
@@ -219,6 +228,13 @@ json-entry-dropdown.json-editor-type {
 
   .json-editor-row:has(.json-editor-coordinates) .json-editor-delete-btn {
     justify-self: end;
+  }
+
+  .json-editor-rows.json-editor-form-mode .json-editor-row {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "key"
+      "value";
   }
 }
 

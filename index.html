@@ -87,6 +87,7 @@
       <button id="load-json-btn">Load Sample JSON</button>
       <button id="load-json-interact-only-btn">Load Sample JSON (Interact-Only)</button>
       <button id="load-json-read-only-btn">Load Sample JSON (Read-Only)</button>
+      <button id="load-json-form-mode-btn">Load Sample JSON (Form-Mode)</button>
       <button id="allow-editing-btn">Allow Editing</button>
       <button id="load-yaml-btn">Load Sample YAML</button>
       <button id="load-dropdown-btn">Load Dropdown Example</button>
@@ -169,10 +170,20 @@ salary: 85000.75`;
       output.value = success ? 'JSON loaded in read-only mode!' : 'Failed to load JSON';
     });
 
+    // Load sample JSON in form mode (just keys and inputs)
+    document.getElementById('load-json-form-mode-btn').addEventListener('click', () => {
+      const success = editor.setJSON(sampleJSON);
+      editor.removeAttribute('interact-only');
+      editor.removeAttribute('read-only');
+      editor.setAttribute('form-mode', '');
+      output.value = success ? 'JSON loaded in form mode!' : 'Failed to load JSON';
+    });
+
     // Allow full editing again
     document.getElementById('allow-editing-btn').addEventListener('click', () => {
       editor.removeAttribute('interact-only');
       editor.removeAttribute('read-only');
+      editor.removeAttribute('form-mode');
       output.value = 'Full editing is now allowed.';
     });
 

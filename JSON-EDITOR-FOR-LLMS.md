@@ -57,6 +57,9 @@ Or include it directly in HTML:
 ### Attributes
 
 - **`src`** (optional): URL to load JSON data from
+- **`interact-only`** (optional): hide add/delete buttons; existing rows stay editable
+- **`read-only`** (optional): disable all interaction; display only
+- **`form-mode`** (optional): render as a simple form - just keys and themed inputs, no type dropdowns, no add/delete buttons; users can tab between inputs
 
 ### Methods
 

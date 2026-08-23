@@ -194,7 +194,7 @@ Typing a value wrapped in double square brackets (e.g. `[[My Note]]`) and pressi
 
 ### View modes
 
-The editor supports two view modes via boolean attributes.
+The editor supports three view modes via boolean attributes.
 
 #### Interact-only
 
@@ -211,6 +211,16 @@ Add the `read-only` attribute to disable all interaction. The editor displays th
 ```html
 <json-editor src="path/to/data.json" read-only></json-editor>
 ```
+
+#### Form-mode
+
+Add the `form-mode` attribute to render the editor as a simple form. Each row shows just the key and the themed input — no type dropdowns, no add button, no delete buttons, and no validation indicators. Users can tab between the inputs to fill the form out quickly:
+
+```html
+<json-editor src="path/to/schema.json" form-mode></json-editor>
+```
+
+Row types and values are preserved exactly as defined in the schema, so form-mode is best combined with a schema file (or `setJSON` with typed rows).
 
 ### Events
 
