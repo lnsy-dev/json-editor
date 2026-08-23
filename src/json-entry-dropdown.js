@@ -23,6 +23,8 @@ class JSONEntryDropdown extends DataroomElement {
       { value: "tag list", iconKey: "tag", label: "Tag list" },
       { value: "url", iconKey: "link", label: "URL" },
       { value: "dropdown", iconKey: "dropdown", label: "Dropdown" },
+      { value: "fuzzy search", iconKey: "search", label: "Fuzzy search" },
+      { value: "fuzzy tag search", iconKey: "tag", label: "Fuzzy tag search" },
       { value: "location", iconKey: "globe", label: "Location" },
       { value: "3d coordinates", iconKey: "3d", label: "3D Coordinates" },
       { value: "json", iconKey: "json", label: "JSON" },

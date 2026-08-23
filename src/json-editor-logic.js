@@ -173,6 +173,17 @@ export function parseValue(value, type) {
       return value || '';
     case 'dropdown':
       return value || '';
+    case 'fuzzy search':
+    case 'fuzzy tag search': {
+      if (Array.isArray(value)) return value.map((v) => String(v));
+      if (typeof value === 'string') {
+        return value
+          .split(',')
+          .map((s) => s.trim())
+          .filter((s) => s);
+      }
+      return [];
+    }
     case 'string':
     default:
       return value || '';
@@ -218,6 +229,9 @@ export function validateValue(value, type) {
     case 'dropdown':
     case 'string':
       return true; // These are always valid
+    case 'fuzzy search':
+    case 'fuzzy tag search':
+      return true;
     case 'location':
       try {
         const obj = typeof value === 'string' ? JSON.parse(value) : value;
@@ -298,6 +312,9 @@ export function formatValueForInput(value, type) {
       return value;
     case 'dropdown':
       return value || '';
+    case 'fuzzy search':
+    case 'fuzzy tag search':
+      return Array.isArray(value) ? value.join(', ') : value;
     case 'datetime':
       // Convert to input[type=datetime-local] format (YYYY-MM-DDTHH:MM) in local time when possible
       const formatLocal = (d) => {
@@ -326,13 +343,14 @@ export function formatValueForInput(value, type) {
  * @returns {Array<{key: string, type: string, value: *}>} - Editor rows
  */
 export function convertJSONToRows(jsonData) {
-  // Schema format: array of { key, type, value, optionsUrl? }
+  // Schema format: array of { key, type, value, optionsUrl?, endpoint? }
   if (Array.isArray(jsonData)) {
     return jsonData.map((row) => ({
       key: row.key || '',
       type: row.type || 'string',
       value: row.value,
       optionsUrl: row.optionsUrl || '',
+      endpoint: row.endpoint || '',
     }));
   }
 

@@ -361,8 +361,8 @@ describe('json-editor-logic', () => {
       ]);
 
       expect(rows).toEqual([
-        { key: 'name', type: 'string', value: 'Task', optionsUrl: '' },
-        { key: 'status', type: 'dropdown', value: 'active', optionsUrl: 'options.json' },
+        { key: 'name', type: 'string', value: 'Task', optionsUrl: '', endpoint: '' },
+        { key: 'status', type: 'dropdown', value: 'active', optionsUrl: 'options.json', endpoint: '' },
       ]);
     });
   });

@@ -316,3 +316,112 @@ json-entry-dropdown.json-editor-type {
 .jed-item.selected {
   outline: 2px solid color-mix(in srgb, currentColor 25%, transparent);
 }
+
+.json-editor-fuzzy {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.jfs-root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* Div of selected fuzzy-searched values */
+.jfs-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.jfs-chips:empty {
+  display: none;
+}
+
+.jfs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--quaternary-color, currentColor);
+  border-radius: 1em;
+  background: color-mix(in srgb, var(--trinary-color, currentColor) 15%, transparent);
+  font-size: 0.85em;
+}
+
+.jfs-chip-label::before {
+  content: "";
+}
+
+/* Wikilink-style chips are rendered without their [[ ]] brackets */
+.jfs-chip-label,
+.jfs-result-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 20em;
+}
+
+.jfs-chip-remove {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0 0.15rem;
+}
+
+.jfs-chip-remove:hover {
+  color: var(--error-color, currentColor);
+}
+
+.jfs-search-wrap {
+  position: relative;
+}
+
+.jfs-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  border: 1px solid var(--quaternary-color, currentColor);
+  background: var(--background-color, transparent);
+  color: var(--foreground-color, currentColor);
+}
+
+.jfs-input:focus {
+  outline: 2px solid var(--trinary-color, currentColor);
+  outline-offset: 1px;
+}
+
+.jfs-results {
+  position: absolute;
+  z-index: 1000;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: none;
+  max-height: 16em;
+  overflow-y: auto;
+  background: var(--background-color, Canvas);
+  color: var(--foreground-color, currentColor);
+  border: 1px solid var(--quaternary-color, currentColor);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.jfs-results.open {
+  display: block;
+}
+
+.jfs-result {
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+}
+
+.jfs-result:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}

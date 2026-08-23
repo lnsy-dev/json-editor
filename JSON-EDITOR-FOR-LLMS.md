@@ -139,6 +139,8 @@ The editor auto-detects and validates these types:
 | **url** | Web URLs | url | Must be valid URL |
 | **array of strings** | Comma-separated list | text | Always valid |
 | **tag list** | Single-word tags | text | No spaces in tags |
+| **fuzzy search** | Fuzzy-search value picker with removable chips | search + chips | Always valid |
+| **fuzzy tag search** | Fuzzy-search tag picker (tag mode) | search + chips | Always valid |
 | **location** | Lat/long/altitude JSON | textarea | Must have all 3 fields |
 | **json** | Nested JSON objects | textarea | Must be valid JSON |
 

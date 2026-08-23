@@ -90,6 +90,7 @@
       <button id="allow-editing-btn">Allow Editing</button>
       <button id="load-yaml-btn">Load Sample YAML</button>
       <button id="load-dropdown-btn">Load Dropdown Example</button>
+      <button id="load-fuzzy-btn">Load Fuzzy Search Example</button>
       <button id="load-coordinates-btn">Load Coordinates Example</button>
       <button id="get-json-btn">Get as JSON</button>
       <button id="get-json-schema-btn">Get as JSON with Schema</button>
@@ -130,6 +131,13 @@ salary: 85000.75`;
     const dropdownJSON = `[
   { "key": "name", "type": "string", "value": "Task" },
   { "key": "status", "type": "dropdown", "value": "active", "optionsUrl": "examples/dropdown-options.json" }
+]`;
+
+    // Fuzzy search example schema JSON
+    const fuzzyJSON = `[
+  { "key": "name", "type": "string", "value": "Task" },
+  { "key": "related files", "type": "fuzzy search", "value": ["[[Project Overview]]"], "optionsUrl": "examples/fuzzy-files.json", "endpoint": "/api/fuzzy-search" },
+  { "key": "labels", "type": "fuzzy tag search", "value": ["design"], "optionsUrl": "examples/dropdown-options.json" }
 ]`;
 
     // Coordinates example JSON
@@ -178,6 +186,12 @@ salary: 85000.75`;
     document.getElementById('load-dropdown-btn').addEventListener('click', () => {
       const success = editor.setJSON(dropdownJSON);
       output.value = success ? 'Dropdown example loaded successfully!' : 'Failed to load dropdown example';
+    });
+
+    // Load fuzzy search example
+    document.getElementById('load-fuzzy-btn').addEventListener('click', () => {
+      const success = editor.setJSON(fuzzyJSON);
+      output.value = success ? 'Fuzzy search example loaded successfully!' : 'Failed to load fuzzy search example';
     });
 
     // Load coordinates example

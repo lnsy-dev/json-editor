@@ -129,6 +129,8 @@ The JSON editor provides a row-based interface where each row represents a key-v
 - **location** - JSON object with latitude, longitude, altitude
 - **json** - Nested JSON objects
 - **dropdown** - Select from options loaded from a JSON file or endpoint configured in the schema (`optionsUrl`)
+- **fuzzy search** - Fuzzy-search value picker with add/remove chips; candidates come from a JSON file (`optionsUrl`) and/or a fuzzy search endpoint (`endpoint`). Wikilink-style values (`[[Note Name]]`) are supported and rendered without their brackets
+- **fuzzy tag search** - Same as fuzzy search but presented in tag mode
 
 ### YAML/JSON Conversion API
 
@@ -168,6 +170,27 @@ editor.setJSON(schema);
 ```
 
 `optionsUrl` points to a JSON endpoint that returns either an array of strings or an array of `{ value, label }` objects. The endpoint URL is stored in the schema and is not shown in the editor UI.
+
+### Fuzzy Search and Fuzzy Tag Search
+
+The `fuzzy search` and `fuzzy tag search` types render a searchable value editor. Users type a query, see fuzzy-matched results, and click (or press Enter) to add values as removable chips. Selected values can also be removed with each chip's × button.
+
+Schema options per row:
+
+- `optionsUrl` - path to a JSON file of candidate entries (array of strings or `{ value, label }` objects), used for local fuzzy matching of file/search results
+- `endpoint` - endpoint queried as `${endpoint}?q=<query>` for server-side fuzzy search; its results are merged with the local options
+- `value` - array of selected strings; wikilink entries like `"[[Project Overview]]"` render without brackets
+
+```javascript
+const schema = `[
+  { "key": "related files", "type": "fuzzy search", "value": ["[[Project Overview]]"], "optionsUrl": "files.json", "endpoint": "/api/fuzzy-search" },
+  { "key": "labels", "type": "fuzzy tag search", "value": ["design"], "optionsUrl": "tags.json" }
+]`;
+
+editor.setJSON(schema);
+```
+
+Typing a value wrapped in double square brackets (e.g. `[[My Note]]`) and pressing Enter adds it as a raw wikilink even when no matching result exists.
 
 ### View modes
 

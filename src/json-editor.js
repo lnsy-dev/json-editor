@@ -10,6 +10,7 @@
 
 import DataroomElement from "dataroom-js";
 import "./json-entry-dropdown.js";
+import "./json-fuzzy-search.js";
 import YAMLConverter from "./yaml-converter.js";
 import {
   detectType,
@@ -110,6 +111,13 @@ class JSONEditor extends DataroomElement {
    */
   formatValueForInput(value, type) {
     return formatValueForInput(value, type);
+  }
+
+  /**
+   * Check whether a row type is handled by the fuzzy search editor.
+   */
+  isFuzzyType(type) {
+    return type === 'fuzzy search' || type === 'fuzzy tag search';
   }
 
   /**
@@ -315,6 +323,23 @@ class JSONEditor extends DataroomElement {
 
       await this.populateDropdownOptions(valueInput, row.optionsUrl);
       valueInput.value = this.formatValueForInput(row.value, row.type) || "";
+    } else if (this.isFuzzyType(row.type)) {
+      // Fuzzy search / fuzzy tag search editor
+      const fuzzyAttrs = {
+        class: "json-editor-value json-editor-fuzzy",
+        value: JSON.stringify(parseValue(row.value, row.type) || []),
+        ...this.readOnlyAttr(),
+      };
+      if (row.optionsUrl) fuzzyAttrs["options-url"] = row.optionsUrl;
+      if (row.endpoint) fuzzyAttrs["search-endpoint"] = row.endpoint;
+      if (row.type === "fuzzy tag search") fuzzyAttrs.tags = "";
+
+      valueInput = this.create("json-fuzzy-search", fuzzyAttrs, rowElement);
+
+      valueInput.addEventListener("VALUE-CHANGED", (e) => {
+        this.rows[index].value = e.detail.value;
+        this.handleDataChange();
+      });
     } else if (row.type === "location" || row.type === "3d coordinates") {
       const isLocation = row.type === "location";
       const fields = isLocation
@@ -484,6 +509,10 @@ class JSONEditor extends DataroomElement {
     if (row.type === 'boolean') {
       validationIndicator.classList.add("valid");
       validationIndicator.textContent = "✓";
+    } else if (this.isFuzzyType(row.type)) {
+      validationIndicator.classList.add("valid");
+      validationIndicator.textContent = "✓";
+      validationIndicator.setAttribute("title", "Valid");
     } else if (row.type !== 'location' && row.type !== '3d coordinates') {
       valueInput.addEventListener("change", (e) => {
         this.rows[index].value = e.target.value;
@@ -627,6 +656,7 @@ class JSONEditor extends DataroomElement {
       type: row.type,
       value: parseValue(row.value, row.type),
       ...(row.optionsUrl ? { optionsUrl: row.optionsUrl } : {}),
+      ...(row.endpoint ? { endpoint: row.endpoint } : {}),
     }));
   }
 
