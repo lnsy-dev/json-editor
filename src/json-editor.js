@@ -129,7 +129,7 @@ class JSONEditor extends DataroomElement {
    * When set, users can edit existing rows but cannot add or delete rows.
    */
   interactOnly() {
-    return this.attrs['interact-only'] !== undefined;
+    return this.hasAttribute('interact-only');
   }
 
   /**
@@ -137,7 +137,7 @@ class JSONEditor extends DataroomElement {
    * When set, no interaction is allowed; the editor only displays information.
    */
   readOnly() {
-    return this.attrs['read-only'] !== undefined;
+    return this.hasAttribute('read-only');
   }
 
   /**

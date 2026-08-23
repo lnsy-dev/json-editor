@@ -250,6 +250,27 @@ test.describe('JSON Editor', () => {
     expect(JSON.parse(exported)).toEqual({ price: 19.99 });
   });
 
+  test('removing read-only attribute restores full editing', async ({ page }) => {
+    const result = await page.evaluate((json) => {
+      const editor = document.querySelector('json-editor');
+      editor.setAttribute('read-only', '');
+      editor.setJSON(json);
+      return true;
+    }, sampleJSON);
+    expect(result).toBe(true);
+
+    // Read-only inputs are disabled
+    const readOnlyKey = page.locator('json-editor .json-editor-key').first();
+    await expect(readOnlyKey).toBeDisabled();
+
+    // Removing the attribute re-renders with enabled inputs
+    await page.evaluate(() => {
+      document.querySelector('json-editor').removeAttribute('read-only');
+    });
+
+    await expect(page.locator('json-editor .json-editor-key').first()).toBeEnabled();
+  });
+
   test('loads dropdown example and exports selected value', async ({ page }) => {
     const dropdownSchemaJSON = JSON.stringify([
       { key: 'name', type: 'string', value: 'Task' },
