@@ -214,7 +214,7 @@ Add the `read-only` attribute to disable all interaction. The editor displays th
 
 #### Form-mode
 
-Add the `form-mode` attribute to render the editor as a simple form. Each row shows just the key and the themed input — no type dropdowns, no add button, no delete buttons, and no validation indicators. Users can tab between the inputs to fill the form out quickly:
+Add the `form-mode` attribute to render the editor as a simple form. Each row shows just the key and the themed input — no type dropdowns, no add button, no delete buttons, and no validation indicators. Keys are fixed (read-only and removed from the tab order), so users tab directly between the value inputs to fill the form out quickly:
 
 ```html
 <json-editor src="path/to/schema.json" form-mode></json-editor>

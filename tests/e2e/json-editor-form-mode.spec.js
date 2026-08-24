@@ -65,21 +65,42 @@ test.describe('JSON Editor Form Mode', () => {
     ).toHaveCount(0);
   });
 
-  test('users can tab between inputs in form mode', async ({ page }) => {
+  test('users can tab between value inputs in form mode', async ({ page }) => {
     await loadFormModeEditor(page);
 
-    const firstKey = page.locator('json-editor .json-editor-row').first().locator('.json-editor-key');
     const firstValue = page.locator('json-editor .json-editor-row').first().locator('.json-editor-value');
-    const secondKey = page.locator('json-editor .json-editor-row').nth(1).locator('.json-editor-key');
+    const secondValue = page.locator('json-editor .json-editor-row').nth(1).locator('.json-editor-value');
+    const thirdValue = page.locator('json-editor .json-editor-row').nth(2).locator('.json-editor-value');
 
-    await firstKey.focus();
-    await expect(firstKey).toBeFocused();
-
-    await page.keyboard.press('Tab');
+    await firstValue.focus();
     await expect(firstValue).toBeFocused();
 
+    // Tab skips the key inputs and lands on the next row's value input
     await page.keyboard.press('Tab');
-    await expect(secondKey).toBeFocused();
+    await expect(secondValue).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    await expect(thirdValue).toBeFocused();
+  });
+
+  test('key inputs are inactive in form mode', async ({ page }) => {
+    await loadFormModeEditor(page);
+
+    const keys = page.locator('json-editor .json-editor-key');
+
+    // Keys cannot be edited
+    await expect(keys.first()).toHaveAttribute('readonly', /.*/);
+
+    // Keys are not part of the sequential tab order
+    await page.evaluate(() => {
+      document.querySelector('json-editor .json-editor-value').focus();
+    });
+    await page.keyboard.press('Shift+Tab');
+
+    const focusedIsKey = await page.evaluate(() =>
+      document.activeElement?.classList.contains('json-editor-key'),
+    );
+    expect(focusedIsKey).toBe(false);
   });
 
   test('edits in form mode update the exported JSON', async ({ page }) => {

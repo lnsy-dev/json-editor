@@ -293,6 +293,7 @@ class JSONEditor extends DataroomElement {
     }
 
     // Key input
+    // In form mode keys are fixed: not editable and removed from the tab order
     const keyInput = this.create(
       "input",
       {
@@ -300,6 +301,9 @@ class JSONEditor extends DataroomElement {
         class: "json-editor-key",
         placeholder: "Key",
         value: row.key || "",
+        ...(this.formMode()
+          ? { readonly: "", tabindex: "-1", title: "Keys are fixed in form mode" }
+          : {}),
         ...this.readOnlyAttr(),
       },
       rowElement,
