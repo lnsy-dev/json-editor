@@ -13,23 +13,23 @@ class JSONEntryDropdown extends DataroomElement {
   async initialize() {
     // Supported types and their icon keys
     this.typeIconMap = [
-      { value: "string", iconKey: "text", label: "String" },
-      { value: "number", iconKey: "number", label: "Number" },
-      { value: "float", iconKey: "float", label: "Float" },
-      { value: "integer", iconKey: "integer", label: "Integer" },
-      { value: "date", iconKey: "calendar", label: "Date" },
-      { value: "datetime", iconKey: "datetime", label: "Datetime" },
-      { value: "array of strings", iconKey: "array", label: "Array of strings" },
-      { value: "tag list", iconKey: "tag", label: "Tag list" },
-      { value: "url", iconKey: "link", label: "URL" },
-      { value: "dropdown", iconKey: "dropdown", label: "Dropdown" },
-      { value: "fuzzy search", iconKey: "search", label: "Fuzzy search" },
-      { value: "fuzzy tag search", iconKey: "tag", label: "Fuzzy tag search" },
-      { value: "location", iconKey: "globe", label: "Location" },
-      { value: "3d coordinates", iconKey: "3d", label: "3D Coordinates" },
-      { value: "json", iconKey: "json", label: "JSON" },
-      { value: "currency", iconKey: "currency", label: "currency" },
-      { value: "boolean", iconKey: "checkbox", label: "Boolean" },
+      { value: "string", iconKey: "text", label: "String", name: "string" },
+      { value: "number", iconKey: "number", label: "Number", name: "number" },
+      { value: "float", iconKey: "float", label: "Float", name: "float" },
+      { value: "integer", iconKey: "integer", label: "Integer", name: "integer" },
+      { value: "date", iconKey: "calendar", label: "Date", name: "date" },
+      { value: "datetime", iconKey: "datetime", label: "Datetime", name: "datetime" },
+      { value: "array of strings", iconKey: "array", label: "Array of strings", name: "array of strings" },
+      { value: "tag list", iconKey: "tag", label: "Tag list", name: "tag list" },
+      { value: "url", iconKey: "link", label: "URL", name: "url" },
+      { value: "dropdown", iconKey: "dropdown", label: "Dropdown", name: "dropdown" },
+      { value: "fuzzy search", iconKey: "search", label: "Fuzzy search", name: "fuzzy search" },
+      { value: "fuzzy tag search", iconKey: "tag", label: "Fuzzy tag search", name: "fuzzy tag search" },
+      { value: "location", iconKey: "globe", label: "Location", name: "location" },
+      { value: "3d coordinates", iconKey: "3d", label: "3D Coordinates", name: "3d coordinates" },
+      { value: "json", iconKey: "json", label: "JSON", name: "json" },
+      { value: "currency", iconKey: "currency", label: "currency", name: "currency" },
+      { value: "boolean", iconKey: "checkbox", label: "Boolean", name: "boolean" },
     ];
 
     this.value = this.attrs.value || "string";
@@ -79,7 +79,7 @@ class JSONEntryDropdown extends DataroomElement {
   renderMenu() {
     this.menu.innerHTML = "";
     this.typeIconMap.forEach((entry) => {
-      const item = this.create("div", { class: `jed-item${entry.value === this.value ? " selected" : ""}`, title: entry.label }, this.menu);
+      const item = this.create("div", { class: `jed-item${entry.value === this.value ? " selected" : ""}`, title: entry.label, name: entry.name }, this.menu);
       const iconEl = this.create("span", { class: "jed-icon" }, item);
       iconEl.innerHTML = icons[entry.iconKey] || "";
 
