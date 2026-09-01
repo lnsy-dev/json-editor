@@ -6,6 +6,30 @@
  * Vitest unit suite and Stryker mutation tests.
  */
 
+import { parseFuzzyValue } from './fuzzy-search-logic.js';
+
+/** Field names for the two coordinate-like types. */
+const COORDINATE_FIELDS = {
+  location: ['latitude', 'longitude', 'altitude'],
+  '3d coordinates': ['x', 'y', 'z'],
+};
+
+/** Default value shown for an unset coordinate field. */
+const COORDINATE_DEFAULT = '0.00';
+
+/**
+ * Split a comma-separated string into a trimmed list of non-empty items.
+ *
+ * @param {string} value - The comma-separated input
+ * @returns {string[]} The split items
+ */
+function splitCommaList(value) {
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item);
+}
+
 /**
  * Detect the display/edit type of a value.
  *
@@ -17,26 +41,24 @@ export function detectType(value) {
   if (value === null || value === undefined) return 'string';
   if (Array.isArray(value)) {
     // Check if it's a tag list (array of single words)
-    if (
-      value.every((item) => typeof item === 'string' && !item.includes(' '))
-    ) {
+    if (value.every((item) => typeof item === 'string' && !item.includes(' '))) {
       return 'tag list';
     }
     return 'array of strings';
   }
   if (typeof value === 'object') {
     const keys = Object.keys(value);
-    if (['latitude', 'longitude', 'altitude'].every((k) => keys.includes(k))) {
+    if (COORDINATE_FIELDS.location.every((k) => keys.includes(k))) {
       return 'location';
     }
-    if (['x', 'y', 'z'].every((k) => keys.includes(k))) {
+    if (COORDINATE_FIELDS['3d coordinates'].every((k) => keys.includes(k))) {
       return '3d coordinates';
     }
     return 'json';
   }
   if (typeof value === 'number') {
     // Check if it might be currency (has 2 decimal places)
-    if (value.toString().match(/^\d+\.\d{2}$/)) {
+    if (/^\d+\.\d{2}$/.test(value.toString())) {
       return 'currency';
     }
     if (Number.isInteger(value)) {
@@ -49,7 +71,9 @@ export function detectType(value) {
     try {
       new URL(value);
       return 'url';
-    } catch { }
+    } catch {
+      // Not a URL; fall through to date/datetime checks
+    }
     // Check if it's a datetime (has time component)
     if (!isNaN(Date.parse(value)) && (value.includes('T') || value.match(/\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}/))) {
       return 'datetime';
@@ -79,6 +103,67 @@ export function sliceCurrencyDigits(value) {
 }
 
 /**
+ * Parse a coordinate-like value (location / 3d coordinates) into an object
+ * with every field present as a string.
+ *
+ * @param {*} value - The raw value (JSON string, object, or other)
+ * @param {string[]} fields - The coordinate field names
+ * @returns {Object} - Object mapping every field to a string
+ */
+function parseCoordinateValue(value, fields) {
+  const result = {};
+  for (const field of fields) {
+    result[field] = COORDINATE_DEFAULT;
+  }
+  let obj = null;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed !== '') {
+      try {
+        obj = JSON.parse(trimmed);
+      } catch {
+        obj = null;
+      }
+    }
+  } else if (typeof value === 'object' && value !== null) {
+    obj = value;
+  }
+  if (obj) {
+    for (const field of fields) {
+      if (obj[field] !== undefined && obj[field] !== null) {
+        result[field] = String(obj[field]);
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * Validate a coordinate-like value: parseable object that carries all
+ * required fields, each of them empty or numeric.
+ *
+ * @param {*} value - The raw value (JSON string or object)
+ * @param {string[]} fields - The coordinate field names
+ * @returns {boolean} - Whether the value is a valid coordinate object
+ */
+function validateCoordinateValue(value, fields) {
+  try {
+    const obj = typeof value === 'string' ? JSON.parse(value) : value;
+    if (!obj || typeof obj !== 'object') return false;
+    const hasKeys = fields.every((field) =>
+      Object.prototype.hasOwnProperty.call(obj, field),
+    );
+    if (!hasKeys) return false;
+    return fields.every((field) => {
+      const v = obj[field];
+      return v === '' || v === null || v === undefined || !isNaN(parseFloat(v));
+    });
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Parse a raw value into the representation used by a given type.
  *
  * @param {*} value - The raw value
@@ -99,72 +184,22 @@ export function parseValue(value, type) {
       return sliceCurrencyDigits(parseFloat(value) || 0.0);
     case 'array of strings':
       if (typeof value === 'string') {
-        return value
-          .split(',')
-          .map((s) => s.trim())
-          .filter((s) => s);
+        return splitCommaList(value);
       }
-      return Array.isArray(value) ? value : [];
+      return Array.isArray(value) ? value.map((item) => String(item)) : [];
     case 'tag list':
       if (typeof value === 'string') {
-        return value
-          .split(',')
-          .map((s) => s.trim())
-          .filter((s) => s && !s.includes(' '));
+        return splitCommaList(value).filter((tag) => !tag.includes(' '));
       }
       return Array.isArray(value)
-        ? value.filter((s) => !s.includes(' '))
+        ? value
+            .map((tag) => String(tag))
+            .filter((tag) => tag && !tag.includes(' '))
         : [];
     case 'location':
-      if (typeof value === 'string') {
-        const trimmed = value.trim();
-        if (trimmed === '') {
-          return { latitude: '0.00', longitude: '0.00', altitude: '0.00' };
-        }
-        try {
-          const obj = JSON.parse(value);
-          return {
-            latitude: String(obj?.latitude ?? '0.00'),
-            longitude: String(obj?.longitude ?? '0.00'),
-            altitude: String(obj?.altitude ?? '0.00'),
-          };
-        } catch {
-          return { latitude: '0.00', longitude: '0.00', altitude: '0.00' };
-        }
-      }
-      if (typeof value === 'object' && value !== null) {
-        return {
-          latitude: String(value.latitude ?? '0.00'),
-          longitude: String(value.longitude ?? '0.00'),
-          altitude: String(value.altitude ?? '0.00'),
-        };
-      }
-      return { latitude: '0.00', longitude: '0.00', altitude: '0.00' };
+      return parseCoordinateValue(value, COORDINATE_FIELDS.location);
     case '3d coordinates':
-      if (typeof value === 'string') {
-        const trimmed = value.trim();
-        if (trimmed === '') {
-          return { x: '0.00', y: '0.00', z: '0.00' };
-        }
-        try {
-          const obj = JSON.parse(value);
-          return {
-            x: String(obj?.x ?? '0.00'),
-            y: String(obj?.y ?? '0.00'),
-            z: String(obj?.z ?? '0.00'),
-          };
-        } catch {
-          return { x: '0.00', y: '0.00', z: '0.00' };
-        }
-      }
-      if (typeof value === 'object' && value !== null) {
-        return {
-          x: String(value.x ?? '0.00'),
-          y: String(value.y ?? '0.00'),
-          z: String(value.z ?? '0.00'),
-        };
-      }
-      return { x: '0.00', y: '0.00', z: '0.00' };
+      return parseCoordinateValue(value, COORDINATE_FIELDS['3d coordinates']);
     case 'json':
       if (typeof value === 'string') {
         try {
@@ -189,16 +224,8 @@ export function parseValue(value, type) {
     case 'dropdown':
       return value || '';
     case 'fuzzy search':
-    case 'fuzzy tag search': {
-      if (Array.isArray(value)) return value.map((v) => String(v));
-      if (typeof value === 'string') {
-        return value
-          .split(',')
-          .map((s) => s.trim())
-          .filter((s) => s);
-      }
-      return [];
-    }
+    case 'fuzzy tag search':
+      return parseFuzzyValue(value);
     case 'string':
     default:
       return value || '';
@@ -220,20 +247,15 @@ export function validateValue(value, type) {
     case 'boolean':
       return true;
     case 'number':
-      return !isNaN(parseFloat(value)) && isFinite(value);
     case 'float':
       return !isNaN(parseFloat(value)) && isFinite(value);
     case 'integer':
       return Number.isInteger(parseFloat(value));
     case 'currency':
-      const currencyVal = parseFloat(value);
-      return !isNaN(currencyVal) && isFinite(currencyVal);
+      return !isNaN(parseFloat(value)) && isFinite(parseFloat(value));
     case 'date':
-      const date = new Date(value);
-      return date instanceof Date && !isNaN(date);
     case 'datetime':
-      const dt = new Date(value);
-      return dt instanceof Date && !isNaN(dt);
+      return !isNaN(new Date(value).getTime());
     case 'url':
       try {
         new URL(value);
@@ -248,27 +270,9 @@ export function validateValue(value, type) {
     case 'fuzzy tag search':
       return true;
     case 'location':
-      try {
-        const obj = typeof value === 'string' ? JSON.parse(value) : value;
-        if (!obj || typeof obj !== 'object') return false;
-        const hasKeys = ['latitude', 'longitude', 'altitude'].every((k) => Object.prototype.hasOwnProperty.call(obj, k));
-        if (!hasKeys) return false;
-        const vals = [obj.latitude, obj.longitude, obj.altitude];
-        return vals.every((v) => v === '' || v === null || v === undefined || !isNaN(parseFloat(v)));
-      } catch {
-        return false;
-      }
+      return validateCoordinateValue(value, COORDINATE_FIELDS.location);
     case '3d coordinates':
-      try {
-        const obj = typeof value === 'string' ? JSON.parse(value) : value;
-        if (!obj || typeof obj !== 'object') return false;
-        const hasKeys = ['x', 'y', 'z'].every((k) => Object.prototype.hasOwnProperty.call(obj, k));
-        if (!hasKeys) return false;
-        const vals = [obj.x, obj.y, obj.z];
-        return vals.every((v) => v === '' || v === null || v === undefined || !isNaN(parseFloat(v)));
-      } catch {
-        return false;
-      }
+      return validateCoordinateValue(value, COORDINATE_FIELDS['3d coordinates']);
     case 'json':
       try {
         if (typeof value === 'string') {
@@ -278,17 +282,15 @@ export function validateValue(value, type) {
       } catch {
         return false;
       }
-    case 'tag list':
+    case 'tag list': {
       const tags =
         typeof value === 'string'
-          ? value
-            .split(',')
-            .map((s) => s.trim())
-            .filter((s) => s)
+          ? splitCommaList(value)
           : Array.isArray(value)
             ? value
             : [];
-      return tags.every((tag) => !tag.includes(' '));
+      return tags.every((tag) => !String(tag).includes(' '));
+    }
     case 'array of strings':
       return true;
     default:
@@ -307,6 +309,8 @@ export function formatValueForInput(value, type) {
   switch (type) {
     case 'array of strings':
     case 'tag list':
+    case 'fuzzy search':
+    case 'fuzzy tag search':
       return Array.isArray(value) ? value.join(', ') : value;
     case 'location':
     case 'json':
@@ -318,8 +322,6 @@ export function formatValueForInput(value, type) {
       return typeof value === 'number'
         ? sliceCurrencyDigits(value).toFixed(2)
         : value;
-    case 'float':
-      return typeof value === 'number' ? value : value;
     case 'integer':
       return typeof value === 'number' ? value.toFixed(0) : value;
     case 'date':
@@ -329,28 +331,35 @@ export function formatValueForInput(value, type) {
       return value;
     case 'dropdown':
       return value || '';
-    case 'fuzzy search':
-    case 'fuzzy tag search':
-      return Array.isArray(value) ? value.join(', ') : value;
     case 'datetime':
-      // Convert to input[type=datetime-local] format (YYYY-MM-DDTHH:MM) in local time when possible
-      const formatLocal = (d) => {
-        const pad = (n) => String(n).padStart(2, '0');
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-      };
-      if (value instanceof Date) {
-        return formatLocal(value);
-      }
-      if (typeof value === 'string') {
-        // If already in acceptable format, return as-is
-        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return value;
-        const d = new Date(value);
-        if (!isNaN(d)) return formatLocal(d);
-      }
-      return value;
+      return formatDatetimeLocal(value);
     default:
       return value;
   }
+}
+
+/**
+ * Convert a datetime value to input[type=datetime-local] format
+ * (YYYY-MM-DDTHH:MM) in local time when possible.
+ *
+ * @param {*} value - A Date, a datetime string, or anything else
+ * @returns {*} The formatted string, or the value unchanged
+ */
+function formatDatetimeLocal(value) {
+  const formatLocal = (d) => {
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+  if (value instanceof Date) {
+    return formatLocal(value);
+  }
+  if (typeof value === 'string') {
+    // If already in acceptable format, return as-is
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return value;
+    const d = new Date(value);
+    if (!isNaN(d)) return formatLocal(d);
+  }
+  return value;
 }
 
 /**

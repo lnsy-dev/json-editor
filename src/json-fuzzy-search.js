@@ -17,11 +17,22 @@ import {
     - search-endpoint: endpoint for server-side fuzzy search;
       queried as `${endpoint}?q=<query>` returning JSON results
     - tags: present = tag mode ("fuzzy tag search")
+    - placeholder: overrides the default input placeholder text
     - disabled: present = read-only
   - Events:
     - VALUE-CHANGED: { value: string[] }
 */
+
+/** Delay (ms) between the last keystroke and executing a search. */
+const SEARCH_DEBOUNCE_MS = 150;
+
 class JSONFuzzySearch extends DataroomElement {
+  handleDocClick = (e) => {
+    if (!this.contains(e.target)) {
+      this.hideResults();
+    }
+  };
+
   async initialize() {
     this.selected = [];
     try {
@@ -48,7 +59,9 @@ class JSONFuzzySearch extends DataroomElement {
         type: "text",
         class: "jfs-input",
         autocomplete: "off",
-        placeholder: this.tagMode ? "Search tags..." : "Search files...",
+        placeholder:
+          this.attrs.placeholder ||
+          (this.tagMode ? "Search tags..." : "Search files..."),
       },
       searchWrap,
     );
@@ -57,17 +70,23 @@ class JSONFuzzySearch extends DataroomElement {
 
     this.setDisabled(this.attrs.disabled !== undefined);
 
-    this.renderChips();
-    await this.loadOptions();
-
+    // Wire interactivity synchronously, before any awaited loading, so
+    // events fired while options are still fetching are never dropped.
+    this.searchToken = 0;
+    this.debounceTimer = null;
     this.input.addEventListener("input", () => this.handleInput());
     this.input.addEventListener("keydown", (e) => this.handleKeydown(e));
 
-    this.handleDocClick = (e) => {
-      if (!this.contains(e.target)) {
-        this.hideResults();
-      }
-    };
+    // The root is styled as a single input; clicking anywhere in it (on
+    // padding, chips or labels) focuses the text input and parks the caret
+    // at the end of what was typed.
+    this.root.addEventListener("click", (e) => {
+      if (this.disabled || e.target === this.input) return;
+      this.input.focus();
+      const end = this.input.value.length;
+      this.input.setSelectionRange(end, end);
+    });
+
     document.addEventListener("click", this.handleDocClick);
 
     this.on("NODE-CHANGED", (data) => {
@@ -75,6 +94,9 @@ class JSONFuzzySearch extends DataroomElement {
         this.setDisabled(data.newValue !== undefined && data.newValue !== null);
       }
     });
+
+    this.renderChips();
+    this.optionsReady = this.loadOptions();
   }
 
   /**
@@ -96,18 +118,38 @@ class JSONFuzzySearch extends DataroomElement {
   }
 
   /**
+   * Handle an input event: debounce the query and drop stale searches.
+   */
+  handleInput() {
+    if (this.disabled) return;
+    const query = this.input.value.trim();
+
+    // Invalidate any in-flight search and cancel the pending debounce
+    this.searchToken += 1;
+    clearTimeout(this.debounceTimer);
+
+    if (!query) {
+      this.results = [];
+      this.renderResults();
+      return;
+    }
+
+    this.debounceTimer = setTimeout(() => this.search(query), SEARCH_DEBOUNCE_MS);
+  }
+
+  /**
    * Query the fuzzy search endpoint (if configured) and merge the
    * results with locally available options before fuzzy filtering.
    */
-  async handleInput() {
-    if (this.disabled) return;
-    const query = this.input.value.trim();
-    this.debounceToken = (this.debounceToken || 0) + 1;
-    const token = this.debounceToken;
+  async search(query) {
+    const token = this.searchToken;
+
+    // Ensure locally available options are loaded before filtering
+    await this.optionsReady;
 
     let candidates = this.options;
 
-    if (query && this.searchEndpoint) {
+    if (this.searchEndpoint) {
       try {
         const url = new URL(this.searchEndpoint, window.location.href);
         url.searchParams.set("q", query);
@@ -126,9 +168,9 @@ class JSONFuzzySearch extends DataroomElement {
     }
 
     // Ignore stale responses after newer keystrokes
-    if (token !== this.debounceToken) return;
+    if (token !== this.searchToken) return;
 
-    this.results = query ? fuzzyFilter(query, candidates) : [];
+    this.results = fuzzyFilter(query, candidates);
     this.renderResults();
   }
 
@@ -142,6 +184,13 @@ class JSONFuzzySearch extends DataroomElement {
         // Allow adding raw values typed directly, including [[wikilinks]]
         const raw = this.input.value.trim();
         if (raw) this.addValue(raw);
+      }
+    } else if (e.key === "Backspace" && this.input.value === "") {
+      // Standard tag-input behavior: Backspace on an empty input removes
+      // the most recently added item.
+      if (this.selected.length > 0) {
+        e.preventDefault();
+        this.removeValue(this.selected[this.selected.length - 1]);
       }
     } else if (e.key === "Escape") {
       this.input.value = "";
@@ -229,6 +278,7 @@ class JSONFuzzySearch extends DataroomElement {
 
   setDisabled(disabled) {
     this.disabled = disabled;
+    this.root.classList.toggle("jfs-disabled", disabled);
     if (disabled) {
       this.input.setAttribute("disabled", "");
       this.hideResults();
@@ -240,6 +290,7 @@ class JSONFuzzySearch extends DataroomElement {
 
   async disconnect() {
     document.removeEventListener("click", this.handleDocClick);
+    clearTimeout(this.debounceTimer);
   }
 }
 

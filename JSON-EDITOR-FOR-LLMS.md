@@ -141,7 +141,7 @@ The editor auto-detects and validates these types:
 | **datetime** | Date and time | datetime-local | Must be valid datetime |
 | **url** | Web URLs | url | Must be valid URL |
 | **array of strings** | Comma-separated list | text | Always valid |
-| **tag list** | Single-word tags | text | No spaces in tags |
+| **tag list** | Single-word tags | tag editor (chips + inline input) | No spaces in tags |
 | **fuzzy search** | Fuzzy-search value picker with removable chips | search + chips | Always valid |
 | **fuzzy tag search** | Fuzzy-search tag picker (tag mode) | search + chips | Always valid |
 | **location** | Lat/long/altitude JSON | textarea | Must have all 3 fields |
@@ -349,6 +349,13 @@ json-editor .json-editor-row {
 
 json-editor .json-editor-key {
   font-weight: bold;
+}
+```
+
+Tag chips are deliberately unopinionated: they are square-cornered by default, and hosts are expected to style them via the `.jfs-chip`, `.jfs-chip-label`, and `.jfs-chip-remove` classes (e.g. `border-radius` for pill-shaped tags).
+```css
+json-editor .jfs-chip {
+  border-radius: 1em; /* pill-shaped tags, if you want them */
 }
 ```
 

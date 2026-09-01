@@ -125,11 +125,11 @@ The JSON editor provides a row-based interface where each row represents a key-v
 - **datetime** - Date and time picker
 - **url** - URL with validation
 - **array of strings** - Comma-separated list
-- **tag list** - Comma-separated tags (single words only)
+- **tag list** - Tag editor: tags are added via an inline input and shown as removable chips ('x' deletes); rendered inside a single input-styled box (single words only)
 - **location** - JSON object with latitude, longitude, altitude
 - **json** - Nested JSON objects
 - **dropdown** - Select from options loaded from a JSON file or endpoint configured in the schema (`optionsUrl`)
-- **fuzzy search** - Fuzzy-search value picker with add/remove chips; candidates come from a JSON file (`optionsUrl`) and/or a fuzzy search endpoint (`endpoint`). Wikilink-style values (`[[Note Name]]`) are supported and rendered without their brackets
+- **fuzzy search** - Fuzzy-search value picker with add/remove chips; candidates come from a JSON file (`optionsUrl`) and/or a fuzzy search endpoint (`endpoint`). Wikilink-style values (`[[Note Name]]`) are supported and rendered without their brackets. Chips and the search input share one input-styled box; clicking anywhere in it places the cursor at the end of the input, and Backspace on an empty input removes the last item
 - **fuzzy tag search** - Same as fuzzy search but presented in tag mode
 
 ### YAML/JSON Conversion API

@@ -1,37 +1,18 @@
 import DataroomElement from "dataroom-js";
 import icons from "./icons.js";
+import { ENTRY_TYPES } from "./entry-types.js";
 
 /*
   json-entry-dropdown
   - Custom dropdown to select a JSON entry type using SVG icons
   - Attributes:
     - value: current selected type (e.g., "string", "number", ...)
+    - disabled: present = disabled
   - Events:
     - TYPE-CHANGED: { value: string }
 */
 class JSONEntryDropdown extends DataroomElement {
   async initialize() {
-    // Supported types and their icon keys
-    this.typeIconMap = [
-      { value: "string", iconKey: "text", label: "String", name: "string" },
-      { value: "number", iconKey: "number", label: "Number", name: "number" },
-      { value: "float", iconKey: "float", label: "Float", name: "float" },
-      { value: "integer", iconKey: "integer", label: "Integer", name: "integer" },
-      { value: "date", iconKey: "calendar", label: "Date", name: "date" },
-      { value: "datetime", iconKey: "datetime", label: "Datetime", name: "datetime" },
-      { value: "array of strings", iconKey: "array", label: "Array of strings", name: "array of strings" },
-      { value: "tag list", iconKey: "tag", label: "Tag list", name: "tag list" },
-      { value: "url", iconKey: "link", label: "URL", name: "url" },
-      { value: "dropdown", iconKey: "dropdown", label: "Dropdown", name: "dropdown" },
-      { value: "fuzzy search", iconKey: "search", label: "Fuzzy search", name: "fuzzy search" },
-      { value: "fuzzy tag search", iconKey: "tag", label: "Fuzzy tag search", name: "fuzzy tag search" },
-      { value: "location", iconKey: "globe", label: "Location", name: "location" },
-      { value: "3d coordinates", iconKey: "3d", label: "3D Coordinates", name: "3d coordinates" },
-      { value: "json", iconKey: "json", label: "JSON", name: "json" },
-      { value: "currency", iconKey: "currency", label: "currency", name: "currency" },
-      { value: "boolean", iconKey: "checkbox", label: "Boolean", name: "boolean" },
-    ];
-
     this.value = this.attrs.value || "string";
 
     this.root = this.create("div", { class: "jed-root" });
@@ -66,19 +47,19 @@ class JSONEntryDropdown extends DataroomElement {
   }
 
   getLabel(val) {
-    const found = this.typeIconMap.find((t) => t.value === val);
+    const found = ENTRY_TYPES.find((t) => t.value === val);
     return found ? found.label : val;
   }
 
   renderIcon(targetEl, typeValue) {
-    const entry = this.typeIconMap.find((t) => t.value === typeValue);
+    const entry = ENTRY_TYPES.find((t) => t.value === typeValue);
     const svgStr = entry ? icons[entry.iconKey] : null;
     targetEl.innerHTML = svgStr || "";
   }
 
   renderMenu() {
     this.menu.innerHTML = "";
-    this.typeIconMap.forEach((entry) => {
+    ENTRY_TYPES.forEach((entry) => {
       const item = this.create("div", { class: `jed-item${entry.value === this.value ? " selected" : ""}`, title: entry.label, name: entry.name }, this.menu);
       const iconEl = this.create("span", { class: "jed-icon" }, item);
       iconEl.innerHTML = icons[entry.iconKey] || "";
@@ -94,6 +75,8 @@ class JSONEntryDropdown extends DataroomElement {
   setValue(val) {
     if (!val || val === this.value) return;
     this.value = val;
+    // Keep the host attribute in sync with the internal state
+    this.setAttribute("value", val);
     // Update UI
     this.button.setAttribute("title", this.getLabel(this.value));
     this.renderIcon(this.buttonIcon, this.value);

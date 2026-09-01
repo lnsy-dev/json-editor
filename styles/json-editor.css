@@ -339,17 +339,37 @@ json-entry-dropdown.json-editor-type {
   background: transparent;
 }
 
+/* The root is styled as a single input: chips and the text input share
+   one bordered, wrapping box. */
 .jfs-root {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
   width: 100%;
+  box-sizing: border-box;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--quaternary-color, currentColor);
+  background: var(--background-color, transparent);
+  color: var(--foreground-color, currentColor);
+  cursor: text;
+}
+
+.jfs-root:focus-within {
+  outline: 2px solid var(--trinary-color, currentColor);
+  outline-offset: 1px;
+}
+
+.jfs-root.jfs-disabled {
+  cursor: default;
+  opacity: 0.6;
 }
 
 /* Div of selected fuzzy-searched values */
 .jfs-chips {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.25rem;
 }
 
@@ -357,13 +377,13 @@ json-entry-dropdown.json-editor-type {
   display: none;
 }
 
+/* Chips are left square-cornered: hosts style them via their own CSS. */
 .jfs-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
   padding: 0.15rem 0.4rem;
   border: 1px solid var(--quaternary-color, currentColor);
-  border-radius: 1em;
   background: color-mix(in srgb, var(--trinary-color, currentColor) 15%, transparent);
   font-size: 0.85em;
 }
@@ -395,22 +415,29 @@ json-entry-dropdown.json-editor-type {
   color: var(--error-color, currentColor);
 }
 
+/* The search wrap grows to fill the rest of the box; the results dropdown
+   is positioned relative to it. */
 .jfs-search-wrap {
   position: relative;
+  display: flex;
+  flex: 1 1 8ch;
+  min-width: 8ch;
 }
 
 .jfs-input {
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
   box-sizing: border-box;
-  padding: 0.5rem;
-  border: 1px solid var(--quaternary-color, currentColor);
-  background: var(--background-color, transparent);
-  color: var(--foreground-color, currentColor);
+  padding: 0.35rem 0.15rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
 }
 
+/* Focus is drawn by the surrounding .jfs-root box instead */
 .jfs-input:focus {
-  outline: 2px solid var(--trinary-color, currentColor);
-  outline-offset: 1px;
+  outline: none;
 }
 
 .jfs-results {
