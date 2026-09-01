@@ -29,29 +29,34 @@
     body {
       max-width: 60em;
       margin: auto;
+      padding: 1em;
+      background: var(--background-color);
+      color: var(--foreground-color);
     }
 
     p {
-      color: var(--tertiary-fg-color);
+      color: var(--foreground-color);
     }
 
     a {
-      color: var(--secondary-fg-color);
+      color: var(--link-color, var(--trinary-color));
     }
 
     h1, h2, h3 {
-      color: var(--complementary-color);
+      color: var(--heading-color, var(--foreground-color));
     }
 
     .test-controls {
       margin: 2em 0;
       padding: 1em;
-      border: 2px solid #ddd;
+      border: 2px solid var(--quaternary-color);
       border-radius: 8px;
+      background: var(--panel-background, transparent);
     }
 
     .test-controls h2 {
       margin-top: 0;
+      color: var(--heading-color, var(--foreground-color));
     }
 
     .test-controls button {
@@ -59,13 +64,14 @@
       padding: 0.5em 1em;
       font-size: 1em;
       cursor: pointer;
-      border: 1px solid #333;
+      border: 1px solid var(--quaternary-color);
       border-radius: 4px;
-      background: white;
+      background: var(--control-background, var(--background-color));
+      color: var(--foreground-color);
     }
 
     .test-controls button:hover {
-      background: #f0f0f0;
+      background: var(--quaternary-color);
     }
 
     .test-controls textarea {
@@ -75,6 +81,28 @@
       padding: 0.5em;
       box-sizing: border-box;
       margin-top: 0.5em;
+      background: var(--background-color);
+      color: var(--foreground-color);
+      border: 1px solid var(--quaternary-color);
+    }
+
+    .test-controls select {
+      padding: 0.5em;
+      font-size: 1em;
+      border: 1px solid var(--quaternary-color);
+      border-radius: 4px;
+      background: var(--control-background, var(--background-color));
+      color: var(--foreground-color);
+      cursor: pointer;
+    }
+
+    .test-controls label {
+      color: var(--foreground-color);
+    }
+
+    ::placeholder {
+      color: var(--trinary-color);
+      opacity: 1;
     }
   </style>
 </head>
@@ -82,7 +110,19 @@
 
   <div class="test-controls">
     <h2>YAML/JSON Converter Test</h2>
-    
+
+    <p>
+      <label for="theme-select"><strong>Theme:</strong></label>
+      <select id="theme-select">
+        <option value="parchment" selected>Parchment (default)</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="sepia">Sepia</option>
+        <option value="ocean">Ocean</option>
+        <option value="high-contrast">High Contrast</option>
+      </select>
+    </p>
+
     <div>
       <button id="load-json-btn">Load Sample JSON</button>
       <button id="load-json-interact-only-btn">Load Sample JSON (Interact-Only)</button>
@@ -107,6 +147,109 @@
   <script type="module">
     const editor = document.querySelector('json-editor');
     const output = document.getElementById('output');
+
+    // Theme presets applied on :root. Each theme themes the entire page
+    // (body, headings, buttons, textarea, links) and the json-editor
+    // component, since both read the same CSS variables. Extra page-only
+    // variables (link/heading/panel/control colors) are derived per theme.
+    const THEMES = {
+      parchment: {
+        '--background-color': '#dddbc7',
+        '--foreground-color': '#2d2d2d',
+        '--confirmation-color': '#0a5c0a',
+        '--error-color': '#ff6b6b',
+        '--quaternary-color': '#d4cfbd',
+        '--trinary-color': '#8aa38a',
+        '--link-color': '#377c43',
+        '--heading-color': '#1c3320',
+        '--panel-background': '#ede9d7',
+        '--control-background': '#ffffff',
+      },
+      light: {
+        '--background-color': '#ffffff',
+        '--foreground-color': '#1a1a1a',
+        '--confirmation-color': '#0a5c0a',
+        '--error-color': '#dc3545',
+        '--quaternary-color': '#d4cfbd',
+        '--trinary-color': '#8aa38a',
+        '--link-color': '#2b6cb0',
+        '--heading-color': '#1a1a1a',
+        '--panel-background': '#f5f5f0',
+        '--control-background': '#ffffff',
+      },
+      dark: {
+        '--background-color': '#1e1e1e',
+        '--foreground-color': '#e0e0e0',
+        '--confirmation-color': '#7ad97a',
+        '--error-color': '#ff6b6b',
+        '--quaternary-color': '#3a3a3a',
+        '--trinary-color': '#5c8a5c',
+        '--link-color': '#7ab8d9',
+        '--heading-color': '#f0f0f0',
+        '--panel-background': '#262626',
+        '--control-background': '#2e2e2e',
+      },
+      sepia: {
+        '--background-color': '#f4ecd8',
+        '--foreground-color': '#5b4636',
+        '--confirmation-color': '#6b8e23',
+        '--error-color': '#b0413e',
+        '--quaternary-color': '#e0d5b8',
+        '--trinary-color': '#a8926b',
+        '--link-color': '#8b5e34',
+        '--heading-color': '#3f2f1e',
+        '--panel-background': '#efe4c8',
+        '--control-background': '#faf4e4',
+      },
+      ocean: {
+        '--background-color': '#eaf4f7',
+        '--foreground-color': '#123a4a',
+        '--confirmation-color': '#1a7f8e',
+        '--error-color': '#c0392b',
+        '--quaternary-color': '#c3dde4',
+        '--trinary-color': '#5f9ea0',
+        '--link-color': '#1a5f7a',
+        '--heading-color': '#0d2b38',
+        '--panel-background': '#dcecf2',
+        '--control-background': '#f7fbfd',
+      },
+      'high-contrast': {
+        '--background-color': '#000000',
+        '--foreground-color': '#ffffff',
+        '--confirmation-color': '#00ff00',
+        '--error-color': '#ff4040',
+        '--quaternary-color': '#444444',
+        '--trinary-color': '#00b3b3',
+        '--link-color': '#66d9ff',
+        '--heading-color': '#ffffff',
+        '--panel-background': '#111111',
+        '--control-background': '#000000',
+      },
+    };
+
+    const applyTheme = (name, silent = false) => {
+      const theme = THEMES[name];
+      if (!theme) return;
+      const rootStyle = document.documentElement.style;
+      // Reset any previously applied editor variables first
+      for (const theme of Object.values(THEMES)) {
+        for (const variable of Object.keys(theme)) {
+          rootStyle.removeProperty(variable);
+        }
+      }
+      for (const [variable, value] of Object.entries(theme)) {
+        rootStyle.setProperty(variable, value);
+      }
+      if (!silent) output.value = `Theme "${name}" applied.`;
+    };
+
+    document.getElementById('theme-select').addEventListener('change', (event) => {
+      applyTheme(event.target.value);
+    });
+
+    // Apply the default theme on load so page-only variables
+    // (link/heading/panel/control colors) are defined from the start.
+    applyTheme(document.getElementById('theme-select').value, true);
 
     // Sample JSON data
     const sampleJSON = `{

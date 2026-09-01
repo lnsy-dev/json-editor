@@ -217,6 +217,13 @@ classes: `.jfs-root`, `.jfs-chips`, `.jfs-chip`, `.jfs-chip-label`,
 `.jfs-chip-remove`, `.jfs-input`, `.jfs-results`, `.jfs-result`,
 `.jfs-result-label`, `.jfs-disabled`.
 
+Borders: inputs always show their 1px border while editable. Inputs
+with the `readonly` attribute (e.g. fixed keys in form mode) hide their
+borders — the border keeps its 1px width with a transparent color so
+layout is identical — and get no focus outline when clicked. Disabled
+inputs keep their borders. Invalid rows keep their `--error-color`
+border via `.json-editor-invalid`.
+
 ---
 
 ## 7. Architecture Rules for Agents

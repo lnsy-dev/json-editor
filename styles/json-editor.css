@@ -45,22 +45,60 @@ json-editor {
 }
 
 .json-editor-row {
-  display: grid;
-  grid-template-columns: 20px 60px 1fr 2fr 40px;
-  gap: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 0.25rem;
 }
 
 .json-editor-key,
 .json-editor-type,
 .json-editor-value {
+  /* Form controls default to the UA font size; inherit the page font so
+     inputs, textareas, selects, and .jfs-root all size identically. */
+  font: inherit;
   padding: 0.5rem;
   border: 1px solid var(--quaternary-color, currentColor);
   background: var(--background-color, transparent);
   color: var(--foreground-color, currentColor);
 }
 
+/* Read-only inputs (readonly attribute — e.g. the fixed keys in form
+   mode) hide their borders: the 1px width is kept with a transparent
+   color so layout is identical to editable inputs. Disabled inputs keep
+   their borders. */
+.json-editor-key[readonly],
+.json-editor-type[readonly],
+.json-editor-value[readonly] {
+  border-color: transparent;
+}
+
+/* The key shrinks to about half its old grid share before wrapping. */
+.json-editor-key {
+  flex: 1 1 8ch;
+  min-width: 5ch;
+  box-sizing: border-box;
+}
+
+/* The value input keeps the 2:1 ratio with the key when there is room,
+   but can shrink to roughly half its width to keep the row on one line. */
+.json-editor-value {
+  flex: 2 1 16ch;
+  min-width: 10ch;
+  box-sizing: border-box;
+}
+
+/* Booleans render a checkbox: keep it compact instead of stretching. */
+input[type="checkbox"].json-editor-value {
+  flex: 0 0 auto;
+  width: 1rem;
+  min-width: 0;
+  height: 1rem;
+  margin: 0;
+}
+
 .json-editor-type {
+  flex: 0 0 auto;
   font-family:
     system-ui,
     -apple-system,
@@ -88,6 +126,13 @@ json-entry-dropdown.json-editor-type {
   outline-offset: 1px;
 }
 
+/* Read-only inputs give no focus feedback when clicked */
+.json-editor-key[readonly]:focus,
+.json-editor-type[readonly]:focus,
+.json-editor-value[readonly]:focus {
+  outline: none;
+}
+
 .json-editor-invalid {
   border-color: var(--error-color, currentColor) !important;
   background-color: color-mix(in srgb, var(--error-color, currentColor) 5%, transparent);
@@ -101,6 +146,7 @@ json-entry-dropdown.json-editor-type {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
   width: 20px;
   height: 20px;
   font-size: 0.8rem;
@@ -140,6 +186,14 @@ json-entry-dropdown.json-editor-type {
   box-sizing: border-box;
 }
 
+.json-editor-coordinates .json-editor-coordinate[readonly] {
+  border-color: transparent;
+}
+
+.json-editor-coordinates .json-editor-coordinate[readonly]:focus {
+  outline: none;
+}
+
 .json-editor-coordinates .json-editor-coordinate:focus {
   outline: 2px solid var(--trinary-color, currentColor);
   outline-offset: 1px;
@@ -152,10 +206,19 @@ json-entry-dropdown.json-editor-type {
 }
 
 .json-editor-dropdown-select {
+  font: inherit;
   padding: 0.5rem;
   border: 1px solid var(--quaternary-color, currentColor);
   background: var(--background-color, transparent);
   color: var(--foreground-color, currentColor);
+}
+
+.json-editor-dropdown-select[readonly] {
+  border-color: transparent;
+}
+
+.json-editor-dropdown-select[readonly]:focus {
+  outline: none;
 }
 
 .json-editor-dropdown-select:focus {
@@ -165,24 +228,30 @@ json-entry-dropdown.json-editor-type {
 
 .json-editor-delete-btn {
   aspect-ratio: 1;
+  flex: 0 0 auto;
   background: var(--error-color, ButtonFace);
   color: var(--background-color, ButtonText);
   border: none;
   cursor: pointer;
-  display: block;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  width: 1.5em;
+  width: 1.25em;
+  line-height: 1;
 }
 
 .json-editor-delete-btn:hover {
   opacity: 0.9;
 }
 
-/* Form mode: just keys and themed inputs, no chrome */
+/* Form mode: just keys and themed inputs, no chrome. Key and value share
+   the row equally. Grid 1fr tracks split exactly in half; with flex
+   `1 1 0` the key's padding/border inflated its flex base so padded
+   keys outweighed padding-less values (tag list / fuzzy rows, checkbox). */
 .json-editor-rows.json-editor-form-mode .json-editor-row {
-  grid-template-columns: 1fr 2fr;
+  display: grid;
+  grid-template-columns: minmax(8ch, 1fr) minmax(8ch, 1fr);
 }
 
 .json-editor-rows.json-editor-form-mode .json-editor-validation-indicator {
@@ -191,50 +260,22 @@ json-entry-dropdown.json-editor-type {
 
 @media (max-width: 768px) {
   .json-editor-row {
-    grid-template-columns: 20px 60px 1fr auto;
-    grid-template-areas:
-      "indicator type key key"
-      ". value value value"
-      ". delete delete delete";
+    gap: 0.2rem;
   }
 
-  .json-editor-row:has(.json-editor-coordinates) {
-    grid-template-areas:
-      "indicator type key key"
-      ". value value delete";
-  }
-
-  .json-editor-validation-indicator {
-    grid-area: indicator;
-  }
-
+  /* Tighten the shrink floor so every row stays on a single line. */
   .json-editor-key {
-    grid-area: key;
-  }
-
-  .json-editor-type {
-    grid-area: type;
+    flex-basis: 6ch;
+    min-width: 4ch;
   }
 
   .json-editor-value {
-    grid-area: value;
+    flex-basis: 12ch;
+    min-width: 7ch;
   }
 
   .json-editor-delete-btn {
-    grid-area: delete;
-    width: 2em;
-    justify-self: start;
-  }
-
-  .json-editor-row:has(.json-editor-coordinates) .json-editor-delete-btn {
-    justify-self: end;
-  }
-
-  .json-editor-rows.json-editor-form-mode .json-editor-row {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "key"
-      "value";
+    width: 1.5em;
   }
 }
 
@@ -348,6 +389,9 @@ json-entry-dropdown.json-editor-type {
   gap: 0.25rem;
   width: 100%;
   box-sizing: border-box;
+  /* Match the inputs/textareas: inherit the page font so the box height
+     lines up with sibling rows' controls. */
+  font: inherit;
   padding: 0.15rem 0.4rem;
   border: 1px solid var(--quaternary-color, currentColor);
   background: var(--background-color, transparent);

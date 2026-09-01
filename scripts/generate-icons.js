@@ -44,6 +44,12 @@ async function buildIcons() {
     s = s.replace(/<!DOCTYPE[^>]*>\s*/gi, "");
     // Optional: strip comments at start
     s = s.replace(/^\s*<!--([\s\S]*?)-->\s*/g, "");
+    // Strip internal <title>/<desc> elements so they don't override the
+    // host's tooltip (e.g. MathJax exports embed "{\\displaystyle ...}"
+    // titles, which would otherwise show on hover instead of the type name)
+    s = s.replace(/<title[\s\S]*?<\/title>\s*/gi, "");
+    s = s.replace(/<desc[\s\S]*?<\/desc>\s*/gi, "");
+    s = s.replace(/\s+aria-labelledby="[^"]*"/gi, "");
     return s.trim();
   };
 

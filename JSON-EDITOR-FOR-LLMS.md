@@ -352,6 +352,13 @@ json-editor .json-editor-key {
 }
 ```
 
+**Borders by state**: inputs (key, value, dropdown selects, coordinate
+fields, and the `.jfs-root` tag/fuzzy box) always show their border while
+editable. Inputs with the `readonly` attribute hide their borders — the
+border keeps its 1px width for layout stability but is transparent — and
+get no focus outline when clicked. Disabled inputs keep their borders.
+Invalid rows keep their `--error-color` border at all times.
+
 Tag chips are deliberately unopinionated: they are square-cornered by default, and hosts are expected to style them via the `.jfs-chip`, `.jfs-chip-label`, and `.jfs-chip-remove` classes (e.g. `border-radius` for pill-shaped tags).
 ```css
 json-editor .jfs-chip {
